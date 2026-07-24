@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Invesim v1.0 — Goal 100 Quadrillion</title>
+    <title>Invesim V1.0 — Goal 100 Quadrillion</title>
     <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
@@ -214,7 +214,7 @@
 <!-- Header -->
 <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:8px;">
     <div>
-        <h1 style="font-size:16px;">📈 Invesim v1.0</h1>
+        <h1 style="font-size:16px;">📈 Invesim V1.0</h1>
         <div class="small">Goal: <b style="color:var(--gold)">100 Quadrillion</b> • Prestige Lv <span id="prestige-lv">0</span></div>
     </div>
     <div style="display:flex;gap:4px;flex-wrap:wrap;align-items:center;">
@@ -269,7 +269,7 @@
 
 <!-- Ticker -->
 <div class="ticker-wrapper">
-    <div id="news-ticker" class="ticker-text">🚨 Selamat datang di Invesim v1.0 • Goal: 100 Quadrillion • Gunakan leverage & event untuk tumbuh eksponensial</div>
+    <div id="news-ticker" class="ticker-text">🚨 Selamat datang di Invesim V1.0 • Goal: 100 Quadrillion • Gunakan leverage & event untuk tumbuh eksponensial</div>
 </div>
 
 <!-- Tabs -->
@@ -423,6 +423,21 @@ let loanIdCounter = 0;
 let pendingOrders = [];
 let orderIdCounter = 0;
 let selectedEmitenChartId = 0;
+let nextCompanyId = 10;
+
+// Pool IPO
+let ipoPool = [
+    { name: "Nusa AI", sector: "Tech", dividendYield: 0.01, pe: 35, volatility: 1.8 },
+    { name: "Energi Hijau", sector: "Energy", dividendYield: 0.03, pe: 18, volatility: 1.3 },
+    { name: "CryptoPay ID", sector: "Crypto", dividendYield: 0.00, pe: 0, volatility: 2.8 },
+    { name: "Medika Digital", sector: "Health", dividendYield: 0.02, pe: 25, volatility: 1.1 },
+    { name: "Logistik Cepat", sector: "Logistics", dividendYield: 0.015, pe: 20, volatility: 1.4 },
+    { name: "Agro Tech", sector: "Agri", dividendYield: 0.04, pe: 14, volatility: 1.2 },
+    { name: "Fintech Nusantara", sector: "Finance", dividendYield: 0.02, pe: 22, volatility: 1.6 },
+    { name: "Smart City ID", sector: "Tech", dividendYield: 0.01, pe: 30, volatility: 1.7 },
+    { name: "Baterai Listrik", sector: "Energy", dividendYield: 0.025, pe: 16, volatility: 1.5 },
+    { name: "Cloud Nusa", sector: "Tech", dividendYield: 0.005, pe: 40, volatility: 1.9 }
+];
 
 let playerCash = 100;
 let totalDeposit = 0;
@@ -667,6 +682,22 @@ function nextDay() {
     // Random event
     if (Math.random() < 0.38) triggerRandomEvent();
 
+    // Dilusi saham setiap 90 hari (+1% totalShares semua emiten)
+    if (currentDay > 0 && currentDay % 90 === 0) {
+        companies.forEach(c => {
+            c.totalShares = Math.floor(c.totalShares * 1.01);
+            // Harga sedikit tertekan karena dilusi
+            c.price = Math.max(0.5, c.price * 0.997);
+        });
+        logAction(`📉 <b>DILUSI SAHAM</b> • Semua emiten mengalami dilusi +1% (Hari ${currentDay})`);
+        document.getElementById('news-ticker').innerText = `📉 DILUSI: Semua emiten menambah saham beredar +1% • Hari ${currentDay}`;
+    }
+
+    // IPO setiap 60 hari
+    if (currentDay > 0 && currentDay % 60 === 0 && ipoPool.length > 0) {
+        launchIPO();
+    }
+
     // Check milestones & achievements
     checkMilestonesAndAchievements();
 
@@ -687,6 +718,44 @@ function nextDay() {
     }
 
     updateCandleChartData();
+    updateUI();
+}
+
+// ===================== IPO SYSTEM =====================
+function launchIPO() {
+    if (ipoPool.length === 0) return;
+
+    const idx = Math.floor(Math.random() * ipoPool.length);
+    const template = ipoPool.splice(idx, 1)[0];
+
+    const ipoPrice = +(Math.random() * 6 + 3).toFixed(2); // $3 – $9
+    const totalShares = Math.floor(Math.random() * 40000 + 25000); // 25k – 65k (biar impact gede)
+
+    const newCompany = {
+        id: nextCompanyId++,
+        name: template.name,
+        price: ipoPrice,
+        candleHistory: [{ x: `H${currentDay}`, y: [ipoPrice, ipoPrice, ipoPrice, ipoPrice] }],
+        sharesOwned: 0,
+        shortOwned: 0,
+        totalShares: totalShares,
+        dividendYield: template.dividendYield,
+        sector: template.sector,
+        pe: template.pe,
+        volatility: template.volatility
+    };
+
+    companies.push(newCompany);
+
+    // Update selectors
+    const options = companies.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
+    document.getElementById('selected-company-chart').innerHTML = options;
+    document.getElementById('order-company').innerHTML = options;
+    document.getElementById('research-company').innerHTML = options;
+
+    logAction(`🚀 <b>IPO LAUNCH!</b> ${newCompany.name} listing @ ${formatMoney(ipoPrice)} • Total Shares: ${totalShares.toLocaleString()}`);
+    document.getElementById('news-ticker').innerText = `🚀 IPO HARI INI: ${newCompany.name} dibuka di ${formatMoney(ipoPrice)} • Serok sekarang!`;
+
     updateUI();
 }
 
@@ -1149,7 +1218,7 @@ function saveGame() {
         playerCash, totalDeposit, currentDay, activeLoans, loanIdCounter,
         companies, pendingOrders, orderIdCounter, prestigeLevel,
         permanentDepositBonus, permanentFeeReduction, season, seasonDaysLeft,
-        achievements, brokerFee, usedCodes
+        achievements, brokerFee, usedCodes, ipoPool, nextCompanyId
     };
     localStorage.setItem('dailyTraderEliteV2', JSON.stringify(state));
     alert("Game tersimpan!");
@@ -1175,6 +1244,14 @@ function loadGame() {
     achievements = data.achievements || achievements;
     brokerFee = data.brokerFee || 0.003;
     usedCodes = data.usedCodes || {};
+    ipoPool = data.ipoPool || ipoPool;
+    nextCompanyId = data.nextCompanyId || 10;
+
+    // Refresh selectors after load
+    const options = companies.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
+    document.getElementById('selected-company-chart').innerHTML = options;
+    document.getElementById('order-company').innerHTML = options;
+    document.getElementById('research-company').innerHTML = options;
 
     updateCandleChartData();
     updateUI();
