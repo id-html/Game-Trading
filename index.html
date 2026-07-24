@@ -1,0 +1,1202 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daily Trader Elite Pro v2 — Goal 100 Quadrillion</title>
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --bg: #0b0f19;
+            --card: #111827;
+            --accent: #10b981;
+            --blue: #3b82f6;
+            --purple: #a855f7;
+            --text: #f3f4f6;
+            --danger: #ef4444;
+            --border: #1f2937;
+            --gold: #eab308;
+        }
+        * { box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            margin: 0;
+            padding: 12px;
+            font-size: 14px;
+        }
+        h1, h2, h3 { margin: 0 0 8px 0; color: #fff; }
+        .dashboard {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+            gap: 10px;
+            margin-bottom: 12px;
+        }
+        .stat-card {
+            background: var(--card);
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            text-align: center;
+        }
+        .stat-val { font-size: 16px; font-weight: 700; margin-top: 4px; word-break: break-all; }
+        .tabs {
+            display: flex;
+            gap: 4px;
+            margin-bottom: 12px;
+            overflow-x: auto;
+            border-bottom: 2px solid var(--border);
+            padding-bottom: 4px;
+        }
+        .tab-btn {
+            background: #1f2937;
+            color: #9ca3af;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 6px 6px 0 0;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 12px;
+            white-space: nowrap;
+        }
+        .tab-btn.active { background: var(--blue); color: #fff; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        .card {
+            background: var(--card);
+            padding: 12px;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+            margin-bottom: 12px;
+        }
+        .btn {
+            background: var(--blue);
+            color: #fff;
+            border: none;
+            padding: 7px 12px;
+            font-size: 12px;
+            font-weight: 700;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+        .btn:hover { opacity: 0.9; }
+        .btn-green { background: var(--accent); color: #000; }
+        .btn-red { background: var(--danger); }
+        .btn-purple { background: var(--purple); }
+        .btn-gold { background: var(--gold); color: #000; }
+        table { width: 100%; border-collapse: collapse; font-size: 12px; }
+        th, td { padding: 8px 4px; text-align: left; border-bottom: 1px solid var(--border); vertical-align: middle; }
+        th { color: #9ca3af; font-weight: 500; }
+        .up { color: var(--accent); }
+        .down { color: var(--danger); }
+        .trade-box { display: flex; flex-direction: column; gap: 4px; max-width: 120px; }
+        .input-trade {
+            width: 100%;
+            padding: 5px;
+            border-radius: 4px;
+            border: 1px solid var(--border);
+            background: #070a12;
+            color: #fff;
+            font-size: 11px;
+            text-align: center;
+        }
+        .btn-row { display: flex; gap: 3px; }
+        .btn-action {
+            padding: 5px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 700;
+            font-size: 10px;
+            flex: 1;
+        }
+        #log-box {
+            background: #070a12;
+            height: 220px;
+            overflow-y: auto;
+            padding: 10px;
+            border-radius: 6px;
+            font-family: monospace;
+            font-size: 11px;
+            color: #9ca3af;
+            border: 1px solid var(--border);
+        }
+        .chart-box { background: #070a12; padding: 8px; border-radius: 8px; border: 1px solid var(--border); margin-bottom: 12px; }
+        .pie-box { position: relative; height: 200px; width: 100%; max-width: 280px; margin: 0 auto; }
+        select, input[type="number"] {
+            padding: 6px;
+            border-radius: 4px;
+            border: 1px solid var(--border);
+            background: #070a12;
+            color: #fff;
+            font-size: 12px;
+        }
+        .ticker-wrapper {
+            background: #070a12;
+            border: 1px solid var(--border);
+            padding: 6px;
+            border-radius: 6px;
+            margin-bottom: 12px;
+            overflow: hidden;
+            white-space: nowrap;
+        }
+        .ticker-text {
+            display: inline-block;
+            padding-left: 100%;
+            animation: ticker 35s linear infinite;
+            color: #f59e0b;
+            font-weight: 700;
+            font-family: monospace;
+            font-size: 12px;
+        }
+        @keyframes ticker {
+            0% { transform: translate3d(0,0,0); }
+            100% { transform: translate3d(-100%,0,0); }
+        }
+        #game-over-screen, #prestige-screen {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(11,15,25,0.96);
+            z-index: 1000;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 20px;
+        }
+        .progress-bar-bg {
+            background: #1f2937;
+            border-radius: 10px;
+            height: 18px;
+            overflow: hidden;
+            margin-top: 6px;
+        }
+        .progress-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--purple), var(--blue));
+            transition: width 0.4s ease;
+        }
+        .badge {
+            display: inline-block;
+            background: #1f2937;
+            border: 1px solid var(--border);
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            margin: 2px;
+        }
+        .badge.unlocked { background: #064e3b; border-color: var(--accent); color: var(--accent); }
+        .small { font-size: 11px; color: #9ca3af; }
+        .order-row { display: flex; gap: 6px; align-items: center; margin-bottom: 6px; flex-wrap: wrap; }
+    </style>
+</head>
+<body>
+
+<!-- Game Over -->
+<div id="game-over-screen">
+    <h1 style="color:var(--danger);font-size:32px;">📉 BANKRUPT</h1>
+    <p style="max-width:90%;">Net Worth negatif. Denda utang 5%/hari menghancurkanmu.</p>
+    <button class="btn btn-green" style="font-size:16px;padding:12px 24px;" onclick="resetGame()">🔄 Main Lagi</button>
+</div>
+
+<!-- Prestige -->
+<div id="prestige-screen">
+    <h1 style="color:var(--gold);font-size:28px;">👑 GOD OF CAPITAL</h1>
+    <p style="max-width:90%;margin:12px 0;">Kamu mencapai 100 Quadrillion!<br>Prestige sekarang untuk bonus permanen & mulai lagi dengan keunggulan.</p>
+    <div id="prestige-bonuses" style="margin:16px 0;font-size:13px;"></div>
+    <button class="btn btn-gold" style="font-size:16px;padding:12px 24px;" onclick="doPrestige()">✨ PRESTIGE SEKARANG</button>
+    <button class="btn" style="margin-top:10px;background:#6b7280;" onclick="document.getElementById('prestige-screen').style.display='none'">Nanti Saja</button>
+</div>
+
+<!-- Header -->
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:8px;">
+    <div>
+        <h1 style="font-size:16px;">📈 Daily Trader Elite Pro v2</h1>
+        <div class="small">Goal: <b style="color:var(--gold)">100 Quadrillion</b> • Prestige Lv <span id="prestige-lv">0</span></div>
+    </div>
+    <div style="display:flex;gap:4px;flex-wrap:wrap;align-items:center;">
+        <input type="text" id="secret-code" placeholder="Kode Rahasia" style="width:110px;padding:6px;font-size:12px;border-radius:4px;border:1px solid var(--border);background:#070a12;color:#fff;">
+        <button class="btn" style="background:#f59e0b;color:#000;" onclick="redeemCode()">🎁</button>
+        <button class="btn" style="background:#a855f7;" onclick="skipDay()">⏭️ Skip</button>
+        <button id="btn-pause" class="btn" style="background:#f59e0b;color:#000;" onclick="togglePause()">⏸️ Pause</button>
+        <button class="btn btn-green" onclick="saveGame()">💾 Save</button>
+        <button class="btn" style="background:#6b7280;" onclick="loadGame()">📂 Load</button>
+    </div>
+</div>
+
+<!-- Dashboard -->
+<div class="dashboard">
+    <div class="stat-card">
+        <div>Net Worth</div>
+        <div id="net-worth" class="stat-val" style="color:var(--gold);">$100</div>
+    </div>
+    <div class="stat-card">
+        <div>Kas</div>
+        <div id="player-cash" class="stat-val up">$100</div>
+    </div>
+    <div class="stat-card">
+        <div>Utang</div>
+        <div id="total-loan" class="stat-val down">$0</div>
+    </div>
+    <div class="stat-card">
+        <div>Deposito</div>
+        <div id="total-deposit" class="stat-val" style="color:var(--purple);">$0</div>
+    </div>
+    <div class="stat-card">
+        <div>Hari Ke-</div>
+        <div id="game-day" class="stat-val" style="color:var(--blue);">1</div>
+    </div>
+    <div class="stat-card">
+        <div>Trader Lv</div>
+        <div id="trader-level" class="stat-val" style="color:#f472b6;">1</div>
+    </div>
+</div>
+
+<!-- Goal Progress -->
+<div class="card" style="padding:10px;">
+    <div style="display:flex;justify-content:space-between;align-items:center;">
+        <div style="font-size:12px;">Progress ke 100 Quadrillion</div>
+        <div id="goal-percent" style="font-weight:700;color:var(--purple);">0.00%</div>
+    </div>
+    <div class="progress-bar-bg">
+        <div id="goal-bar" class="progress-bar-fill" style="width:0%;"></div>
+    </div>
+    <div id="current-milestone" class="small" style="margin-top:4px;">Milestone berikutnya: Rookie Trader ($10,000)</div>
+</div>
+
+<!-- Ticker -->
+<div class="ticker-wrapper">
+    <div id="news-ticker" class="ticker-text">🚨 Selamat datang di Daily Trader Elite Pro v2 • Goal: 100 Quadrillion • Gunakan leverage & event untuk tumbuh eksponensial</div>
+</div>
+
+<!-- Tabs -->
+<div class="tabs">
+    <button class="tab-btn active" onclick="openTab('tab-trading')">📊 Pasar</button>
+    <button class="tab-btn" onclick="openTab('tab-orders')">📋 Orders</button>
+    <button class="tab-btn" onclick="openTab('tab-finance')">🏦 Bank</button>
+    <button class="tab-btn" onclick="openTab('tab-research')">🔬 Research</button>
+    <button class="tab-btn" onclick="openTab('tab-stats')">📈 Stats</button>
+    <button class="tab-btn" onclick="openTab('tab-achieve')">🏆 Achieve</button>
+    <button class="tab-btn" onclick="openTab('tab-logs')">📜 Log</button>
+</div>
+
+<!-- TAB TRADING -->
+<div id="tab-trading" class="tab-content active card">
+    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;">
+        <h2 style="font-size:15px;">Candlestick</h2>
+        <select id="selected-company-chart" onchange="changeChartEmiten()" style="font-weight:700;"></select>
+    </div>
+    <div class="chart-box"><div id="candleChart"></div></div>
+    <div style="overflow-x:auto;">
+        <table>
+            <thead>
+                <tr>
+                    <th>Emiten</th>
+                    <th>Harga</th>
+                    <th>Chg</th>
+                    <th>Div</th>
+                    <th>Porto</th>
+                    <th>Short</th>
+                    <th>Aksi (lembar)</th>
+                </tr>
+            </thead>
+            <tbody id="market-table-body"></tbody>
+        </table>
+    </div>
+</div>
+
+<!-- TAB ORDERS (Stop Loss / Take Profit / Limit) -->
+<div id="tab-orders" class="tab-content card">
+    <h2 style="font-size:15px;">Pending Orders</h2>
+    <p class="small">Stop Loss & Take Profit akan dieksekusi otomatis saat harga menyentuh level.</p>
+    <div id="pending-orders-list" style="margin-top:10px;"></div>
+    <hr style="border-color:var(--border);margin:16px 0;">
+    <h3 style="font-size:14px;">Buat Order Baru</h3>
+    <div class="order-row">
+        <select id="order-company"></select>
+        <select id="order-type">
+            <option value="sl">Stop Loss</option>
+            <option value="tp">Take Profit</option>
+            <option value="limit_buy">Limit Buy</option>
+            <option value="limit_sell">Limit Sell</option>
+        </select>
+        <input type="number" id="order-price" placeholder="Harga trigger" style="width:100px;">
+        <input type="number" id="order-qty" placeholder="Qty / Nilai $" style="width:100px;">
+        <button class="btn btn-green" onclick="createOrder()">+ Order</button>
+    </div>
+</div>
+
+<!-- TAB BANK -->
+<div id="tab-finance" class="tab-content card">
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px;">
+        <div>
+            <h2 style="font-size:15px;">💵 Kredit</h2>
+            <p class="small">Bunga 4%/30 hari. Overdue +5%/hari. Max 30% Net Worth.</p>
+            <p>Plafon: <b id="max-loan-allowed">$30</b></p>
+            <div style="display:flex;gap:6px;flex-wrap:wrap;margin:10px 0;">
+                <input type="number" id="input-loan" placeholder="Jumlah $" style="width:110px;">
+                <select id="select-tenor">
+                    <option value="90">90 Hari</option>
+                    <option value="180">180 Hari</option>
+                    <option value="270">270 Hari</option>
+                    <option value="360">360 Hari</option>
+                </select>
+                <button class="btn btn-red" onclick="takeLoan()">Ajukan</button>
+            </div>
+            <div style="overflow-x:auto;max-height:140px;">
+                <table>
+                    <thead><tr><th>Sisa</th><th>Tagihan</th><th>Status</th><th></th></tr></thead>
+                    <tbody id="loan-list-body"></tbody>
+                </table>
+            </div>
+        </div>
+        <div>
+            <h2 style="font-size:15px;">🔒 Deposito</h2>
+            <p class="small">Bunga 3.5%/360 hari. Bunga langsung menambah saldo deposito (compounding). Prestige naikkan rate.</p>
+            <div style="display:flex;gap:6px;margin:10px 0;">
+                <input type="number" id="input-deposit" placeholder="Jumlah $" style="flex:1;">
+                <button class="btn btn-green" onclick="createDeposit()">Simpan</button>
+            </div>
+            <div style="display:flex;gap:6px;margin-bottom:8px;">
+                <input type="number" id="input-withdraw" placeholder="Nominal cairkan $" style="flex:1;">
+                <button class="btn" style="background:var(--blue);" onclick="withdrawDeposit()">Cairkan</button>
+            </div>
+            <button class="btn btn-red" style="width:100%;" onclick="withdrawAllDeposit()">Cairkan Semua</button>
+            <div style="margin-top:16px;">
+                <label class="small"><input type="checkbox" id="auto-reinvest" checked> Auto Reinvest Dividen</label>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- TAB RESEARCH -->
+<div id="tab-research" class="tab-content card">
+    <h2 style="font-size:15px;">🔬 Fundamental Research</h2>
+    <select id="research-company" onchange="renderResearch()" style="margin-bottom:12px;font-weight:700;"></select>
+    <div id="research-content"></div>
+</div>
+
+<!-- TAB STATS -->
+<div id="tab-stats" class="tab-content card">
+    <h2 style="font-size:15px;">Komposisi Aset</h2>
+    <div class="pie-box"><canvas id="assetPieChart"></canvas></div>
+    <div style="margin-top:12px;font-size:12px;line-height:1.7;">
+        • Total Saham: <b id="stat-porto-val">$0</b><br>
+        • Leverage: <b id="stat-leverage">0%</b><br>
+        • Season: <b id="current-season">Bull</b><br>
+        • Broker Fee: <b id="broker-fee-display">0.30%</b>
+    </div>
+</div>
+
+<!-- TAB ACHIEVE -->
+<div id="tab-achieve" class="tab-content card">
+    <h2 style="font-size:15px;">🏆 Achievements</h2>
+    <div id="achievement-list" style="margin-top:10px;"></div>
+</div>
+
+<!-- TAB LOGS -->
+<div id="tab-logs" class="tab-content card">
+    <h2 style="font-size:15px;">Log & Berita</h2>
+    <div id="log-box"></div>
+</div>
+
+<script>
+// ===================== DATA & STATE =====================
+let companies = [
+    { id:0, name:"Nusa Tech", price:50, candleHistory:[{x:'H1',y:[50,50,50,50]}], sharesOwned:0, shortOwned:0, totalShares:1000000, dividendYield:0.025, sector:"Tech", pe:28, volatility:1.2 },
+    { id:1, name:"Bumi Energi", price:120, candleHistory:[{x:'H1',y:[120,120,120,120]}], sharesOwned:0, shortOwned:0, totalShares:2000000, dividendYield:0.050, sector:"Energy", pe:12, volatility:1.0 },
+    { id:2, name:"Pangan Jaya", price:30, candleHistory:[{x:'H1',y:[30,30,30,30]}], sharesOwned:0, shortOwned:0, totalShares:5000000, dividendYield:0.040, sector:"Consumer", pe:18, volatility:0.8 },
+    { id:3, name:"Kripto Nusa", price:15, candleHistory:[{x:'H1',y:[15,15,15,15]}], sharesOwned:0, shortOwned:0, totalShares:10000000, dividendYield:0.000, sector:"Crypto", pe:0, volatility:2.5 },
+    { id:4, name:"Graha Land", price:80, candleHistory:[{x:'H1',y:[80,80,80,80]}], sharesOwned:0, shortOwned:0, totalShares:1500000, dividendYield:0.065, sector:"Property", pe:15, volatility:0.9 },
+    { id:5, name:"Tambang Maju", price:150, candleHistory:[{x:'H1',y:[150,150,150,150]}], sharesOwned:0, shortOwned:0, totalShares:900000, dividendYield:0.080, sector:"Mining", pe:9, volatility:1.4 },
+    { id:6, name:"Indo Medika", price:45, candleHistory:[{x:'H1',y:[45,45,45,45]}], sharesOwned:0, shortOwned:0, totalShares:2500000, dividendYield:0.035, sector:"Health", pe:22, volatility:0.7 },
+    { id:7, name:"Sinar Agro", price:60, candleHistory:[{x:'H1',y:[60,60,60,60]}], sharesOwned:0, shortOwned:0, totalShares:1800000, dividendYield:0.055, sector:"Agri", pe:11, volatility:1.1 },
+    { id:8, name:"Logistik Jaya", price:25, candleHistory:[{x:'H1',y:[25,25,25,25]}], sharesOwned:0, shortOwned:0, totalShares:4000000, dividendYield:0.020, sector:"Logistics", pe:16, volatility:0.9 },
+    { id:9, name:"Tele Nusa", price:95, candleHistory:[{x:'H1',y:[95,95,95,95]}], sharesOwned:0, shortOwned:0, totalShares:3500000, dividendYield:0.048, sector:"Telecom", pe:14, volatility:0.8 }
+];
+
+let activeLoans = [];
+let loanIdCounter = 0;
+let pendingOrders = [];
+let orderIdCounter = 0;
+let selectedEmitenChartId = 0;
+
+let playerCash = 100;
+let totalDeposit = 0;
+let currentDay = 1;
+let isPaused = false;
+let prestigeLevel = 0;
+let permanentDepositBonus = 0; // dari prestige
+let permanentFeeReduction = 0;
+
+let season = "Bull"; // Bull / Bear
+let seasonDaysLeft = 25;
+
+let achievements = [
+    { id:"first_buy", name:"First Blood", desc:"Beli saham pertama", unlocked:false },
+    { id:"first_10k", name:"Rookie", desc:"Net Worth $10,000", unlocked:false },
+    { id:"first_1m", name:"Millionaire", desc:"Net Worth $1 Juta", unlocked:false },
+    { id:"first_1b", name:"Billionaire", desc:"Net Worth $1 Miliar", unlocked:false },
+    { id:"short_king", name:"Short King", desc:"Lakukan short selling", unlocked:false },
+    { id:"debt_free", name:"Debt Free", desc:"Lunasi semua utang", unlocked:false },
+    { id:"deposit_master", name:"Deposit Whale", desc:"Deposito > $1 Juta", unlocked:false },
+    { id:"event_survivor", name:"Event Survivor", desc:"Bertahan dari Crash", unlocked:false },
+    { id:"day_100", name:"Veteran", desc:"Main 100 hari", unlocked:false },
+    { id:"god_mode", name:"God of Capital", desc:"Capai 100 Quadrillion", unlocked:false }
+];
+
+const milestones = [
+    { target: 1e4, name: "Rookie Trader" },
+    { target: 1e6, name: "Rising Star" },
+    { target: 1e8, name: "Whale Local" },
+    { target: 1e10, name: "Institutional" },
+    { target: 1e12, name: "National Tycoon" },
+    { target: 1e14, name: "Asian Dragon" },
+    { target: 1e17, name: "GOD OF CAPITAL" }
+];
+
+const BASE_LOAN_INTEREST_DAILY = 0.04 / 30;
+const DEPOSIT_INTEREST_DAILY = 0.035 / 360;
+const OVERDUE_PENALTY_DAILY = 0.05;
+let brokerFee = 0.003;
+
+let gameTimer, candleChart, assetPieChart;
+
+// ===================== HELPERS =====================
+function formatMoney(n) {
+    if (n === 0) return "$0";
+    const abs = Math.abs(n);
+    const sign = n < 0 ? "-" : "";
+    if (abs >= 1e17) return sign + "$" + (abs/1e17).toFixed(2) + " Quadrillion";
+    if (abs >= 1e15) return sign + "$" + (abs/1e15).toFixed(2) + " Quadrillion";
+    if (abs >= 1e12) return sign + "$" + (abs/1e12).toFixed(2) + " Trillion";
+    if (abs >= 1e9)  return sign + "$" + (abs/1e9).toFixed(2) + " Billion";
+    if (abs >= 1e6)  return sign + "$" + (abs/1e6).toFixed(2) + " Million";
+    if (abs >= 1e3)  return sign + "$" + (abs/1e3).toFixed(2) + "K";
+    return sign + "$" + abs.toFixed(2);
+}
+
+function getStockValue() {
+    return companies.reduce((s,c) => s + (c.price * c.sharesOwned) - (c.price * c.shortOwned), 0);
+}
+function getTotalLoan() { return activeLoans.reduce((s,l) => s + l.totalBalance, 0); }
+function getNetWorth() { return (playerCash + totalDeposit + getStockValue()) - getTotalLoan(); }
+
+function logAction(msg) {
+    const lb = document.getElementById('log-box');
+    lb.innerHTML = `• <span style="color:#6b7280">H${currentDay}</span> ${msg}<br>` + lb.innerHTML;
+}
+
+// ===================== SECRET CODES =====================
+let usedCodes = {}; // prevent spam
+
+function redeemCode() {
+    const input = document.getElementById('secret-code');
+    const code = (input.value || "").trim().toLowerCase();
+    if (!code) return alert("Masukkan kode rahasia dulu!");
+
+    if (usedCodes[code]) {
+        logAction(`⚠️ Kode "${code}" sudah pernah dipakai.`);
+        input.value = '';
+        return;
+    }
+
+    if (code === "elonmusk") {
+        playerCash += 1000000;
+        usedCodes[code] = true;
+        logAction(`🚀 <b>DONASI DARI ELON MUSK!</b> Kamu menerima $1,000,000 secara instan.`);
+        document.getElementById('news-ticker').innerText = `🚀 BREAKING: Elon Musk mengirimkan donasi sebesar $1,000,000 ke akun trader ini! • Hari ${currentDay}`;
+        input.value = '';
+        updateUI();
+        return;
+    }
+
+    logAction(`❌ Kode "${code}" tidak valid.`);
+    input.value = '';
+}
+
+// ===================== TABS =====================
+function openTab(id) {
+    document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+    document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    event.currentTarget.classList.add('active');
+    if (id === 'tab-stats') updatePieChart();
+    if (id === 'tab-research') renderResearch();
+    if (id === 'tab-achieve') renderAchievements();
+    if (id === 'tab-orders') renderOrders();
+}
+
+// ===================== CHARTS =====================
+function initCharts() {
+    const selector = document.getElementById('selected-company-chart');
+    const orderSel = document.getElementById('order-company');
+    const researchSel = document.getElementById('research-company');
+    selector.innerHTML = orderSel.innerHTML = researchSel.innerHTML = companies.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
+
+    const options = {
+        series: [{ data: companies[0].candleHistory }],
+        chart: { type: 'candlestick', height: 210, toolbar: { show: false }, background: 'transparent' },
+        theme: { mode: 'dark' },
+        xaxis: { type: 'category', labels: { style: { colors: '#9ca3af', fontSize: '10px' } } },
+        yaxis: { labels: { style: { colors: '#9ca3af' }, formatter: v => formatMoney(v) } },
+        plotOptions: { candlestick: { colors: { upward: '#10b981', downward: '#ef4444' } } },
+        grid: { borderColor: '#1f2937' }
+    };
+    candleChart = new ApexCharts(document.querySelector("#candleChart"), options);
+    candleChart.render();
+
+    const ctx = document.getElementById('assetPieChart').getContext('2d');
+    assetPieChart = new Chart(ctx, {
+        type: 'pie',
+        data: {
+            labels: ['Kas', 'Deposito', 'Long', 'Short'],
+            datasets: [{ data: [100,0,0,0], backgroundColor: ['#10b981','#a855f7','#3b82f6','#ef4444'], borderWidth: 1 }]
+        },
+        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { labels: { color: '#9ca3af', font: { size: 11 } } } } }
+    });
+}
+
+function changeChartEmiten() {
+    selectedEmitenChartId = parseInt(document.getElementById('selected-company-chart').value);
+    updateCandleChartData();
+}
+
+function updateCandleChartData() {
+    if (candleChart) candleChart.updateSeries([{ data: companies[selectedEmitenChartId].candleHistory }]);
+}
+
+function updatePieChart() {
+    if (!assetPieChart) return;
+    const longVal = companies.reduce((s,c) => s + c.price * c.sharesOwned, 0);
+    const shortVal = companies.reduce((s,c) => s + c.price * c.shortOwned, 0);
+    assetPieChart.data.datasets[0].data = [Math.max(0, playerCash), totalDeposit, longVal, shortVal];
+    assetPieChart.update();
+}
+
+// ===================== CORE LOOP =====================
+function startGameTimer() { gameTimer = setInterval(() => { if (!isPaused) nextDay(); }, 9000); }
+function skipDay() { nextDay(); clearInterval(gameTimer); startGameTimer(); }
+function togglePause() {
+    isPaused = !isPaused;
+    document.getElementById('btn-pause').innerText = isPaused ? "▶️ Resume" : "⏸️ Pause";
+}
+
+function nextDay() {
+    currentDay++;
+
+    // Daily random income (small)
+    playerCash += (Math.random() * 15) - 3;
+
+    // Loan interest & penalty
+    activeLoans.forEach(l => {
+        l.remainingDays--;
+        l.totalBalance *= (1 + BASE_LOAN_INTEREST_DAILY);
+        if (l.remainingDays <= 0) {
+            l.remainingDays = 0;
+            l.isOverdue = true;
+            const penalty = l.totalBalance * OVERDUE_PENALTY_DAILY;
+            l.totalBalance += penalty;
+            logAction(`🚨 DENDA Kontrak #${l.id} +${formatMoney(penalty)}`);
+        }
+    });
+
+    // Deposit interest (compound into deposit balance so it visibly grows)
+    if (totalDeposit > 0) {
+        const rate = DEPOSIT_INTEREST_DAILY * (1 + permanentDepositBonus);
+        const interest = totalDeposit * rate;
+        totalDeposit += interest;
+        logAction(`💰 Bunga Deposito +${formatMoney(interest)} (saldo sekarang ${formatMoney(totalDeposit)})`);
+    }
+
+    // Season
+    seasonDaysLeft--;
+    if (seasonDaysLeft <= 0) {
+        season = season === "Bull" ? "Bear" : "Bull";
+        seasonDaysLeft = 20 + Math.floor(Math.random() * 15);
+        logAction(`🌍 Season berubah menjadi <b>${season}</b> (${seasonDaysLeft} hari)`);
+        document.getElementById('news-ticker').innerText = `🌍 MARKET SEASON: ${season.toUpperCase()} • ${seasonDaysLeft} hari tersisa`;
+    }
+
+    // Price movement
+    const seasonMult = season === "Bull" ? 1.15 : 0.85;
+    companies.forEach(c => {
+        const open = c.price;
+        let changePercent = ((Math.random() * 6 - 3) / 100) * c.volatility * seasonMult;
+        // small mean reversion
+        if (c.price > 200) changePercent -= 0.005;
+        if (c.price < 10) changePercent += 0.008;
+
+        const close = Math.max(0.5, open * (1 + changePercent));
+        const high = Math.max(open, close) * (1 + Math.random() * 0.012);
+        const low = Math.min(open, close) * (1 - Math.random() * 0.012);
+
+        c.price = close;
+        c.candleHistory.push({
+            x: `H${currentDay}`,
+            y: [+open.toFixed(2), +high.toFixed(2), +low.toFixed(2), +close.toFixed(2)]
+        });
+        if (c.candleHistory.length > 30) c.candleHistory.shift();
+
+        // Dividend
+        if (c.sharesOwned > 0 && Math.random() < 0.08) {
+            const div = (c.price * c.dividendYield / 10) * c.sharesOwned;
+            if (document.getElementById('auto-reinvest').checked) {
+                // reinvest roughly
+                const qty = Math.floor(div / c.price);
+                if (qty > 0) {
+                    c.sharesOwned += qty;
+                    logAction(`💸 Dividen ${c.name} direinvest → +${qty} lembar`);
+                } else {
+                    playerCash += div;
+                    logAction(`💸 Dividen ${c.name} +${formatMoney(div)}`);
+                }
+            } else {
+                playerCash += div;
+                logAction(`💸 Dividen ${c.name} +${formatMoney(div)}`);
+            }
+        }
+    });
+
+    // Process pending orders
+    processOrders();
+
+    // Random event
+    if (Math.random() < 0.38) triggerRandomEvent();
+
+    // Check milestones & achievements
+    checkMilestonesAndAchievements();
+
+    if (getNetWorth() < 0) {
+        triggerGameOver();
+        return;
+    }
+
+    // Prestige check
+    if (getNetWorth() >= 1e17 && !achievements.find(a => a.id === "god_mode").unlocked) {
+        achievements.find(a => a.id === "god_mode").unlocked = true;
+        document.getElementById('prestige-screen').style.display = 'flex';
+        document.getElementById('prestige-bonuses').innerHTML = `
+            Prestige Level berikutnya: ${prestigeLevel + 1}<br>
+            • +${((prestigeLevel + 1) * 0.15 * 100).toFixed(0)}% Deposit Interest<br>
+            • -${((prestigeLevel + 1) * 0.05 * 100).toFixed(0)}% Broker Fee (min 0.05%)
+        `;
+    }
+
+    updateCandleChartData();
+    updateUI();
+}
+
+// ===================== EVENTS =====================
+const possibleEvents = [
+    { title: "🚀 Nusa Tech dapat kontrak pemerintah", fn: () => buffCompany(0, 0.22, 0.38) },
+    { title: "💥 Kripto Nusa kena exploit besar", fn: () => buffCompany(3, -0.55, -0.35) },
+    { title: "🛢️ Tambang Maju temukan cadangan baru", fn: () => buffCompany(5, 0.28, 0.48) },
+    { title: "🏥 Indo Medika lolos uji klinis", fn: () => buffCompany(6, 0.18, 0.32) },
+    { title: "📉 Flash Crash pasar!", fn: () => globalMove(-0.18) },
+    { title: "☀️ Risk-on sentiment meledak", fn: () => globalMove(0.16) },
+    { title: "🏦 Bank sentral potong suku bunga", fn: () => { globalMove(0.09); logAction("Deposito & saham naik"); } },
+    { title: "⚠️ Regulasi ketat sektor Crypto", fn: () => buffCompany(3, -0.30, -0.15) },
+    { title: "🏗️ Proyek infrastruktur disetujui", fn: () => { buffCompany(4, 0.15, 0.28); buffCompany(8, 0.12, 0.22); } },
+    { title: "🌾 Cuaca ekstrem hantam Agro", fn: () => buffCompany(7, -0.25, -0.12) }
+];
+
+function buffCompany(id, min, max) {
+    const c = companies[id];
+    const chg = min + Math.random() * (max - min);
+    c.price = Math.max(0.5, c.price * (1 + chg));
+    logAction(`📰 <b>${possibleEvents.find(e => e.fn.toString().includes(id) || true).title || 'Event'}</b><br>→ ${c.name} ${chg>=0?'+':''}${(chg*100).toFixed(1)}%`);
+}
+
+function globalMove(pct) {
+    companies.forEach(c => {
+        c.price = Math.max(0.5, c.price * (1 + pct + (Math.random()*0.04 - 0.02)));
+    });
+    logAction(`🌍 <b>Global Move ${pct>=0?'+':''}${(pct*100).toFixed(0)}%</b>`);
+    if (pct < -0.15) unlockAchievement("event_survivor");
+}
+
+function triggerRandomEvent() {
+    const ev = possibleEvents[Math.floor(Math.random() * possibleEvents.length)];
+    // Fix title logging
+    const titles = [
+        "🚀 Nusa Tech dapat kontrak pemerintah",
+        "💥 Kripto Nusa kena exploit besar",
+        "🛢️ Tambang Maju temukan cadangan baru",
+        "🏥 Indo Medika lolos uji klinis",
+        "📉 Flash Crash pasar!",
+        "☀️ Risk-on sentiment meledak",
+        "🏦 Bank sentral potong suku bunga",
+        "⚠️ Regulasi ketat sektor Crypto",
+        "🏗️ Proyek infrastruktur disetujui",
+        "🌾 Cuaca ekstrem hantam Agro"
+    ];
+    const idx = possibleEvents.indexOf(ev);
+    logAction(`📰 <b>${titles[idx]}</b>`);
+    ev.fn();
+    document.getElementById('news-ticker').innerText = `🚨 ${titles[idx]} • Hari ${currentDay}`;
+}
+
+// ===================== TRADING =====================
+function buyStockManual(id) {
+    const c = companies[id];
+    const inputEl = document.getElementById(`input-amt-${id}`);
+    let qty = parseInt(inputEl.value);
+    if (isNaN(qty) || qty <= 0) return alert("Masukkan jumlah lembar saham!");
+    
+    const finalCost = qty * c.price;
+    const finalFee = finalCost * Math.max(0.0005, brokerFee - permanentFeeReduction);
+    const totalNeeded = finalCost + finalFee;
+
+    if (totalNeeded < 10) {
+        logAction(`⚠️ Nilai transaksi minimal ~$10. Ditolak.`);
+        return;
+    }
+    if (playerCash < totalNeeded) {
+        logAction(`⚠️ Kas tidak cukup (butuh ${formatMoney(totalNeeded)} termasuk fee)`);
+        return;
+    }
+
+    playerCash -= totalNeeded;
+    c.sharesOwned += qty;
+
+    // Price impact
+    const impact = Math.log1p(qty / (c.totalShares * 0.15)) * 0.35;
+    c.price *= (1 + impact);
+
+    logAction(`🛒 BUY ${qty} lembar ${c.name} @ ${formatMoney(c.price)} | Total ${formatMoney(finalCost)} + Fee ${formatMoney(finalFee)}`);
+    unlockAchievement("first_buy");
+    inputEl.value = '';
+    updateCandleChartData();
+    updateUI();
+}
+
+function sellStockManual(id) {
+    const c = companies[id];
+    const inputEl = document.getElementById(`input-amt-${id}`);
+    let qty = parseInt(inputEl.value);
+    if (isNaN(qty) || qty <= 0) return alert("Masukkan jumlah lembar saham!");
+    
+    if (c.sharesOwned < qty) {
+        logAction(`⚠️ Porto tidak cukup. Kamu hanya punya ${c.sharesOwned} lembar.`);
+        return;
+    }
+
+    const revenue = qty * c.price;
+    if (revenue < 10) {
+        logAction(`⚠️ Nilai transaksi minimal ~$10.`);
+        return;
+    }
+
+    const fee = revenue * Math.max(0.0005, brokerFee - permanentFeeReduction);
+    playerCash += (revenue - fee);
+    c.sharesOwned -= qty;
+
+    const impact = Math.log1p(qty / (c.totalShares * 0.15)) * 0.35;
+    c.price = Math.max(0.5, c.price * (1 - impact));
+
+    logAction(`💰 SELL ${qty} lembar ${c.name} | Dapat ${formatMoney(revenue - fee)} (fee ${formatMoney(fee)})`);
+    inputEl.value = '';
+    updateCandleChartData();
+    updateUI();
+}
+
+function shortStock(id) {
+    const c = companies[id];
+    const inputEl = document.getElementById(`input-amt-${id}`);
+    let qty = parseInt(inputEl.value);
+    if (isNaN(qty) || qty <= 0) return alert("Masukkan jumlah lembar untuk short!");
+
+    const notional = qty * c.price;
+    if (notional < 10) {
+        logAction(`⚠️ Nilai short minimal ~$10`);
+        return;
+    }
+
+    // Simple margin: butuh 50% collateral di kas
+    const collateral = notional * 0.5;
+    if (playerCash < collateral) {
+        logAction(`⚠️ Collateral 50% tidak cukup (butuh ${formatMoney(collateral)})`);
+        return;
+    }
+
+    playerCash -= collateral; // lock collateral (simplified)
+    c.shortOwned += qty;
+
+    const impact = Math.log1p(qty / (c.totalShares * 0.15)) * 0.3;
+    c.price = Math.max(0.5, c.price * (1 - impact));
+
+    logAction(`🔻 SHORT ${qty} lembar ${c.name} | Collateral ${formatMoney(collateral)}`);
+    unlockAchievement("short_king");
+    inputEl.value = '';
+    updateUI();
+}
+
+function coverShort(id) {
+    const c = companies[id];
+    if (c.shortOwned <= 0) return;
+    const cost = c.shortOwned * c.price;
+    if (playerCash < cost) {
+        logAction(`⚠️ Kas tidak cukup untuk cover short`);
+        return;
+    }
+    playerCash -= cost;
+    // return collateral roughly (simplified)
+    playerCash += (c.shortOwned * c.price * 0.5); // rough
+    logAction(`🔼 COVER SHORT ${c.shortOwned} ${c.name}`);
+    c.shortOwned = 0;
+    updateUI();
+}
+
+// ===================== ORDERS =====================
+function createOrder() {
+    const cid = parseInt(document.getElementById('order-company').value);
+    const type = document.getElementById('order-type').value;
+    const price = parseFloat(document.getElementById('order-price').value);
+    const qtyOrVal = parseFloat(document.getElementById('order-qty').value);
+    if (isNaN(price) || isNaN(qtyOrVal) || price <= 0 || qtyOrVal <= 0) return alert("Isi semua field!");
+
+    orderIdCounter++;
+    pendingOrders.push({
+        id: orderIdCounter,
+        companyId: cid,
+        type,
+        triggerPrice: price,
+        qtyOrVal,
+        active: true
+    });
+    logAction(`📋 Order #${orderIdCounter} dibuat (${type}) @ ${formatMoney(price)}`);
+    renderOrders();
+}
+
+function processOrders() {
+    pendingOrders.forEach(o => {
+        if (!o.active) return;
+        const c = companies[o.companyId];
+        let triggered = false;
+
+        if (o.type === 'sl' && c.price <= o.triggerPrice) triggered = true;
+        if (o.type === 'tp' && c.price >= o.triggerPrice) triggered = true;
+        if (o.type === 'limit_buy' && c.price <= o.triggerPrice) triggered = true;
+        if (o.type === 'limit_sell' && c.price >= o.triggerPrice) triggered = true;
+
+        if (triggered) {
+            o.active = false;
+            if (o.type === 'sl' || o.type === 'limit_sell' || o.type === 'tp') {
+                // sell logic simplified
+                const qty = Math.min(c.sharesOwned, Math.floor(o.qtyOrVal / c.price) || o.qtyOrVal);
+                if (qty > 0 && c.sharesOwned >= qty) {
+                    const rev = qty * c.price;
+                    const fee = rev * brokerFee;
+                    playerCash += rev - fee;
+                    c.sharesOwned -= qty;
+                    logAction(`⚡ Order #${o.id} TERTRIGGER → SELL ${qty} ${c.name}`);
+                }
+            } else if (o.type === 'limit_buy') {
+                const cost = o.qtyOrVal;
+                if (playerCash >= cost) {
+                    const qty = Math.floor(cost / c.price);
+                    if (qty > 0) {
+                        playerCash -= qty * c.price;
+                        c.sharesOwned += qty;
+                        logAction(`⚡ Order #${o.id} TERTRIGGER → BUY ${qty} ${c.name}`);
+                    }
+                }
+            }
+        }
+    });
+    pendingOrders = pendingOrders.filter(o => o.active);
+}
+
+function renderOrders() {
+    const el = document.getElementById('pending-orders-list');
+    if (pendingOrders.length === 0) {
+        el.innerHTML = '<div class="small">Belum ada pending order.</div>';
+        return;
+    }
+    el.innerHTML = pendingOrders.map(o => {
+        const c = companies[o.companyId];
+        return `<div style="padding:6px;background:#070a12;border-radius:6px;margin-bottom:4px;font-size:12px;">
+            #${o.id} ${o.type.toUpperCase()} ${c.name} @ ${formatMoney(o.triggerPrice)} 
+            <button class="btn btn-red" style="padding:2px 6px;font-size:10px;margin-left:8px;" onclick="cancelOrder(${o.id})">X</button>
+        </div>`;
+    }).join('');
+}
+
+function cancelOrder(id) {
+    pendingOrders = pendingOrders.filter(o => o.id !== id);
+    renderOrders();
+}
+
+// ===================== BANK =====================
+function takeLoan() {
+    const amount = parseFloat(document.getElementById('input-loan').value);
+    const tenor = parseInt(document.getElementById('select-tenor').value);
+    if (isNaN(amount) || amount <= 0) return;
+
+    const maxAllowed = getNetWorth() * 0.30;
+    if (getTotalLoan() + amount > maxAllowed) {
+        alert(`Melebihi plafon 30% Net Worth (${formatMoney(maxAllowed)})`);
+        return;
+    }
+
+    loanIdCounter++;
+    activeLoans.push({ id: loanIdCounter, totalBalance: amount, remainingDays: tenor, isOverdue: false });
+    playerCash += amount;
+    document.getElementById('input-loan').value = '';
+    logAction(`🏦 Kredit #${loanIdCounter} cair ${formatMoney(amount)} tenor ${tenor}h`);
+    updateUI();
+}
+
+function paySingleLoan(id) {
+    const loan = activeLoans.find(l => l.id === id);
+    if (!loan) return;
+    if (playerCash >= loan.totalBalance) {
+        playerCash -= loan.totalBalance;
+        logAction(`✅ Lunas Kredit #${loan.id}`);
+        activeLoans = activeLoans.filter(l => l.id !== id);
+        if (activeLoans.length === 0) unlockAchievement("debt_free");
+    } else alert("Kas tidak cukup!");
+    updateUI();
+}
+
+function createDeposit() {
+    const amount = parseFloat(document.getElementById('input-deposit').value);
+    if (isNaN(amount) || amount <= 0 || playerCash < amount) return alert("Kas tidak cukup");
+    playerCash -= amount;
+    totalDeposit += amount;
+    document.getElementById('input-deposit').value = '';
+    logAction(`🔒 Deposito +${formatMoney(amount)}`);
+    if (totalDeposit >= 1e6) unlockAchievement("deposit_master");
+    updateUI();
+}
+
+function withdrawDeposit() {
+    const amount = parseFloat(document.getElementById('input-withdraw').value);
+    if (isNaN(amount) || amount <= 0) return alert("Masukkan nominal yang ingin dicairkan!");
+    if (amount > totalDeposit) return alert("Saldo deposito tidak cukup!");
+    totalDeposit -= amount;
+    playerCash += amount;
+    document.getElementById('input-withdraw').value = '';
+    logAction(`🔓 Cairkan deposito ${formatMoney(amount)} | Sisa: ${formatMoney(totalDeposit)}`);
+    updateUI();
+}
+
+function withdrawAllDeposit() {
+    if (totalDeposit <= 0) return;
+    playerCash += totalDeposit;
+    logAction(`🔓 Cairkan SEMUA deposito ${formatMoney(totalDeposit)}`);
+    totalDeposit = 0;
+    document.getElementById('input-withdraw').value = '';
+    updateUI();
+}
+
+// ===================== RESEARCH =====================
+function renderResearch() {
+    const id = parseInt(document.getElementById('research-company').value);
+    const c = companies[id];
+    const sma7 = c.candleHistory.slice(-7).reduce((s,d) => s + d.y[3], 0) / Math.min(7, c.candleHistory.length);
+    const sma25 = c.candleHistory.slice(-25).reduce((s,d) => s + d.y[3], 0) / Math.min(25, c.candleHistory.length);
+    const rsiApprox = 50 + (c.price - sma7) / sma7 * 100; // very rough
+
+    document.getElementById('research-content').innerHTML = `
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;font-size:13px;">
+            <div><b>Sektor</b><br>${c.sector}</div>
+            <div><b>P/E Ratio</b><br>${c.pe || 'N/A'}</div>
+            <div><b>Dividend Yield</b><br>${(c.dividendYield*100).toFixed(1)}%</div>
+            <div><b>Volatility</b><br>${c.volatility.toFixed(1)}x</div>
+            <div><b>SMA 7</b><br>${formatMoney(sma7)}</div>
+            <div><b>SMA 25</b><br>${formatMoney(sma25)}</div>
+            <div><b>Market Cap</b><br>${formatMoney(c.price * c.totalShares)}</div>
+            <div><b>RSI (approx)</b><br>${Math.min(90, Math.max(10, rsiApprox)).toFixed(0)}</div>
+        </div>
+        <p class="small" style="margin-top:10px;">Harga di atas SMA7 = bias bullish jangka pendek.</p>
+    `;
+}
+
+// ===================== ACHIEVEMENTS & MILESTONES =====================
+function unlockAchievement(id) {
+    const a = achievements.find(x => x.id === id);
+    if (a && !a.unlocked) {
+        a.unlocked = true;
+        logAction(`🏆 ACHIEVEMENT UNLOCKED: <b>${a.name}</b>`);
+    }
+}
+
+function checkMilestonesAndAchievements() {
+    const nw = getNetWorth();
+    if (nw >= 1e4) unlockAchievement("first_10k");
+    if (nw >= 1e6) unlockAchievement("first_1m");
+    if (nw >= 1e9) unlockAchievement("first_1b");
+    if (currentDay >= 100) unlockAchievement("day_100");
+
+    // Trader level
+    const lvl = Math.max(1, Math.floor(Math.log10(Math.max(100, nw)) - 1));
+    document.getElementById('trader-level').innerText = lvl;
+}
+
+function renderAchievements() {
+    document.getElementById('achievement-list').innerHTML = achievements.map(a => 
+        `<span class="badge ${a.unlocked ? 'unlocked' : ''}">${a.unlocked ? '✅' : '🔒'} ${a.name}</span>`
+    ).join('');
+}
+
+// ===================== PRESTIGE =====================
+function doPrestige() {
+    prestigeLevel++;
+    permanentDepositBonus = prestigeLevel * 0.15;
+    permanentFeeReduction = Math.min(0.0025, prestigeLevel * 0.0005);
+    brokerFee = Math.max(0.0005, 0.003 - permanentFeeReduction);
+
+    // Reset progress but keep prestige
+    playerCash = 100 + (prestigeLevel * 50);
+    totalDeposit = 0;
+    activeLoans = [];
+    pendingOrders = [];
+    currentDay = 1;
+    companies.forEach(c => {
+        c.sharesOwned = 0;
+        c.shortOwned = 0;
+        c.price = [50,120,30,15,80,150,45,60,25,95][c.id];
+        c.candleHistory = [{ x: 'H1', y: [c.price, c.price, c.price, c.price] }];
+    });
+    season = "Bull";
+    seasonDaysLeft = 25;
+
+    document.getElementById('prestige-screen').style.display = 'none';
+    document.getElementById('prestige-lv').innerText = prestigeLevel;
+    logAction(`✨ PRESTIGE LEVEL ${prestigeLevel}! Bonus permanen aktif.`);
+    updateUI();
+}
+
+// ===================== UI UPDATE =====================
+function updateUI() {
+    const nw = getNetWorth();
+    document.getElementById('net-worth').innerText = formatMoney(nw);
+    document.getElementById('player-cash').innerText = formatMoney(playerCash);
+    document.getElementById('total-loan').innerText = formatMoney(getTotalLoan());
+    document.getElementById('total-deposit').innerText = formatMoney(totalDeposit);
+    document.getElementById('game-day').innerText = currentDay;
+    document.getElementById('max-loan-allowed').innerText = formatMoney(Math.max(0, nw * 0.30));
+    document.getElementById('stat-porto-val').innerText = formatMoney(getStockValue());
+    document.getElementById('stat-leverage').innerText = (nw > 0 ? (getTotalLoan() / nw * 100) : 0).toFixed(1) + "%";
+    document.getElementById('current-season').innerText = season;
+    document.getElementById('broker-fee-display').innerText = ((brokerFee - permanentFeeReduction) * 100).toFixed(2) + "%";
+    document.getElementById('prestige-lv').innerText = prestigeLevel;
+
+    // Goal progress
+    const progress = Math.min(100, (nw / 1e17) * 100);
+    document.getElementById('goal-percent').innerText = progress.toFixed(4) + "%";
+    document.getElementById('goal-bar').style.width = progress + "%";
+
+    // Next milestone
+    const next = milestones.find(m => nw < m.target) || milestones[milestones.length - 1];
+    document.getElementById('current-milestone').innerText = `Next: ${next.name} (${formatMoney(next.target)})`;
+
+    // Market table
+    const tbody = document.getElementById('market-table-body');
+    const activeInputs = {};
+    companies.forEach(c => {
+        const el = document.getElementById(`input-amt-${c.id}`);
+        if (el) activeInputs[c.id] = el.value;
+    });
+
+    tbody.innerHTML = companies.map(c => {
+        const prev = c.candleHistory[c.candleHistory.length - 2] || c.candleHistory[0];
+        const chg = ((c.price - prev.y[0]) / prev.y[0]) * 100;
+        const saved = activeInputs[c.id] || '';
+        return `<tr>
+            <td><b>${c.name}</b><br><span class="small">${c.sector}</span></td>
+            <td>${formatMoney(c.price)}</td>
+            <td class="${chg>=0?'up':'down'}">${chg>=0?'▲':'▼'}${chg.toFixed(1)}%</td>
+            <td>${(c.dividendYield*100).toFixed(1)}%</td>
+            <td><b>${c.sharesOwned}</b></td>
+            <td class="down">${c.shortOwned || 0}</td>
+            <td>
+                <div class="trade-box">
+                    <input type="number" id="input-amt-${c.id}" class="input-trade" placeholder="Jml lembar" value="${saved}">
+                    <div class="btn-row">
+                        <button class="btn-action btn-green" onclick="buyStockManual(${c.id})">BUY</button>
+                        <button class="btn-action btn-red" onclick="sellStockManual(${c.id})">SELL</button>
+                    </div>
+                    <div class="btn-row">
+                        <button class="btn-action" style="background:#7c3aed;color:#fff;" onclick="shortStock(${c.id})">SHORT</button>
+                        <button class="btn-action" style="background:#4b5563;" onclick="coverShort(${c.id})">COVER</button>
+                    </div>
+                </div>
+            </td>
+        </tr>`;
+    }).join('');
+
+    // Loans
+    const lbody = document.getElementById('loan-list-body');
+    lbody.innerHTML = activeLoans.map(l => `
+        <tr>
+            <td>${l.remainingDays}h</td>
+            <td class="down">${formatMoney(l.totalBalance)}</td>
+            <td>${l.isOverdue ? '<span class="down">OVERDUE</span>' : '<span class="up">Aktif</span>'}</td>
+            <td><button class="btn-action btn-green" style="padding:2px 6px;" onclick="paySingleLoan(${l.id})">Bayar</button></td>
+        </tr>
+    `).join('');
+}
+
+// ===================== SAVE / LOAD / RESET =====================
+function saveGame() {
+    const state = {
+        playerCash, totalDeposit, currentDay, activeLoans, loanIdCounter,
+        companies, pendingOrders, orderIdCounter, prestigeLevel,
+        permanentDepositBonus, permanentFeeReduction, season, seasonDaysLeft,
+        achievements, brokerFee, usedCodes
+    };
+    localStorage.setItem('dailyTraderEliteV2', JSON.stringify(state));
+    alert("Game tersimpan!");
+}
+
+function loadGame() {
+    const raw = localStorage.getItem('dailyTraderEliteV2');
+    if (!raw) return alert("Tidak ada save data");
+    const data = JSON.parse(raw);
+    playerCash = data.playerCash;
+    totalDeposit = data.totalDeposit;
+    currentDay = data.currentDay;
+    activeLoans = data.activeLoans || [];
+    loanIdCounter = data.loanIdCounter || 0;
+    companies = data.companies;
+    pendingOrders = data.pendingOrders || [];
+    orderIdCounter = data.orderIdCounter || 0;
+    prestigeLevel = data.prestigeLevel || 0;
+    permanentDepositBonus = data.permanentDepositBonus || 0;
+    permanentFeeReduction = data.permanentFeeReduction || 0;
+    season = data.season || "Bull";
+    seasonDaysLeft = data.seasonDaysLeft || 25;
+    achievements = data.achievements || achievements;
+    brokerFee = data.brokerFee || 0.003;
+    usedCodes = data.usedCodes || {};
+
+    updateCandleChartData();
+    updateUI();
+    alert("Game berhasil diload!");
+}
+
+function triggerGameOver() {
+    isPaused = true;
+    document.getElementById('game-over-screen').style.display = 'flex';
+}
+
+function resetGame() {
+    localStorage.removeItem('dailyTraderEliteV2');
+    location.reload();
+}
+
+// ===================== BOOT =====================
+initCharts();
+updateUI();
+startGameTimer();
+logAction("Sistem Elite Pro v2 aktif. Goal: 100 Quadrillion. Gunakan event, leverage & compounding!");
+renderAchievements();
+</script>
+</body>
+</html>
