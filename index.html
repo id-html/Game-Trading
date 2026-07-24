@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Invesim V1.0 — Goal 100 Quadrillion</title>
+    <title>Invesim v2-1 — Goal 100 Quadrillion</title>
     <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
@@ -214,7 +214,7 @@
 <!-- Header -->
 <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:8px;">
     <div>
-        <h1 style="font-size:16px;">📈 Invesim V1.0</h1>
+        <h1 style="font-size:16px;">📈 Invesim v2-1</h1>
         <div class="small">Goal: <b style="color:var(--gold)">100 Quadrillion</b> • Prestige Lv <span id="prestige-lv">0</span></div>
     </div>
     <div style="display:flex;gap:4px;flex-wrap:wrap;align-items:center;">
@@ -269,7 +269,7 @@
 
 <!-- Ticker -->
 <div class="ticker-wrapper">
-    <div id="news-ticker" class="ticker-text">🚨 Selamat datang di Invesim V1.0 • Goal: 100 Quadrillion • Gunakan leverage & event untuk tumbuh eksponensial</div>
+    <div id="news-ticker" class="ticker-text">🚨 Selamat datang di Invesim v2-1 • Goal: 100 Quadrillion • Gunakan leverage & event untuk tumbuh eksponensial</div>
 </div>
 
 <!-- Tabs -->
@@ -279,8 +279,10 @@
     <button class="tab-btn" onclick="openTab('tab-finance')">🏦 Bank</button>
     <button class="tab-btn" onclick="openTab('tab-research')">🔬 Research</button>
     <button class="tab-btn" onclick="openTab('tab-stats')">📈 Stats</button>
+    <button class="tab-btn" onclick="openTab('tab-sector')">🏭 Sektor</button>
+    <button class="tab-btn" onclick="openTab('tab-history')">📜 History</button>
     <button class="tab-btn" onclick="openTab('tab-achieve')">🏆 Achieve</button>
-    <button class="tab-btn" onclick="openTab('tab-logs')">📜 Log</button>
+    <button class="tab-btn" onclick="openTab('tab-logs')">📰 Log</button>
 </div>
 
 <!-- TAB TRADING -->
@@ -294,10 +296,13 @@
         <table>
             <thead>
                 <tr>
+                    <th>★</th>
                     <th>Emiten</th>
                     <th>Harga</th>
                     <th>Chg</th>
+                    <th>Vol</th>
                     <th>Div</th>
+                    <th>Total Shares</th>
                     <th>Porto</th>
                     <th>Short</th>
                     <th>Aksi (lembar)</th>
@@ -381,13 +386,42 @@
 
 <!-- TAB STATS -->
 <div id="tab-stats" class="tab-content card">
-    <h2 style="font-size:15px;">Komposisi Aset</h2>
-    <div class="pie-box"><canvas id="assetPieChart"></canvas></div>
-    <div style="margin-top:12px;font-size:12px;line-height:1.7;">
-        • Total Saham: <b id="stat-porto-val">$0</b><br>
+    <h2 style="font-size:15px;">Komposisi Portofolio</h2>
+    <div class="pie-box" style="height:280px;"><canvas id="assetPieChart"></canvas></div>
+    <div id="pie-legend" style="margin-top:12px;font-size:12px;line-height:1.8;"></div>
+    <div style="margin-top:14px;font-size:12px;line-height:1.7;border-top:1px solid var(--border);padding-top:10px;">
+        • Total Saham (Long): <b id="stat-porto-val">$0</b><br>
+        • Total Short Exposure: <b id="stat-short-val">$0</b><br>
         • Leverage: <b id="stat-leverage">0%</b><br>
         • Season: <b id="current-season">Bull</b><br>
         • Broker Fee: <b id="broker-fee-display">0.30%</b>
+    </div>
+</div>
+
+<!-- TAB SECTOR -->
+<div id="tab-sector" class="tab-content card">
+    <h2 style="font-size:15px;">🏭 Sector Performance</h2>
+    <p class="small">Performa rata-rata per sektor (berdasarkan perubahan harga hari ini).</p>
+    <div id="sector-performance" style="margin-top:12px;"></div>
+</div>
+
+<!-- TAB HISTORY -->
+<div id="tab-history" class="tab-content card">
+    <h2 style="font-size:15px;">📜 Transaction History</h2>
+    <div style="overflow-x:auto;max-height:400px;">
+        <table>
+            <thead>
+                <tr>
+                    <th>Hari</th>
+                    <th>Aksi</th>
+                    <th>Emiten</th>
+                    <th>Qty</th>
+                    <th>Harga</th>
+                    <th>Total</th>
+                </tr>
+            </thead>
+            <tbody id="history-body"></tbody>
+        </table>
     </div>
 </div>
 
@@ -406,17 +440,19 @@
 <script>
 // ===================== DATA & STATE =====================
 let companies = [
-    { id:0, name:"Nusa Tech", price:50, candleHistory:[{x:'H1',y:[50,50,50,50]}], sharesOwned:0, shortOwned:0, totalShares:10000, dividendYield:0.025, sector:"Tech", pe:28, volatility:1.2 },
-    { id:1, name:"Bumi Energi", price:120, candleHistory:[{x:'H1',y:[120,120,120,120]}], sharesOwned:0, shortOwned:0, totalShares:20000, dividendYield:0.050, sector:"Energy", pe:12, volatility:1.0 },
-    { id:2, name:"Pangan Jaya", price:30, candleHistory:[{x:'H1',y:[30,30,30,30]}], sharesOwned:0, shortOwned:0, totalShares:50000, dividendYield:0.040, sector:"Consumer", pe:18, volatility:0.8 },
-    { id:3, name:"Kripto Nusa", price:15, candleHistory:[{x:'H1',y:[15,15,15,15]}], sharesOwned:0, shortOwned:0, totalShares:100000, dividendYield:0.000, sector:"Crypto", pe:0, volatility:2.5 },
-    { id:4, name:"Graha Land", price:80, candleHistory:[{x:'H1',y:[80,80,80,80]}], sharesOwned:0, shortOwned:0, totalShares:15000, dividendYield:0.065, sector:"Property", pe:15, volatility:0.9 },
-    { id:5, name:"Tambang Maju", price:150, candleHistory:[{x:'H1',y:[150,150,150,150]}], sharesOwned:0, shortOwned:0, totalShares:9000, dividendYield:0.080, sector:"Mining", pe:9, volatility:1.4 },
-    { id:6, name:"Indo Medika", price:45, candleHistory:[{x:'H1',y:[45,45,45,45]}], sharesOwned:0, shortOwned:0, totalShares:25000, dividendYield:0.035, sector:"Health", pe:22, volatility:0.7 },
-    { id:7, name:"Sinar Agro", price:60, candleHistory:[{x:'H1',y:[60,60,60,60]}], sharesOwned:0, shortOwned:0, totalShares:18000, dividendYield:0.055, sector:"Agri", pe:11, volatility:1.1 },
-    { id:8, name:"Logistik Jaya", price:25, candleHistory:[{x:'H1',y:[25,25,25,25]}], sharesOwned:0, shortOwned:0, totalShares:40000, dividendYield:0.020, sector:"Logistics", pe:16, volatility:0.9 },
-    { id:9, name:"Tele Nusa", price:95, candleHistory:[{x:'H1',y:[95,95,95,95]}], sharesOwned:0, shortOwned:0, totalShares:35000, dividendYield:0.048, sector:"Telecom", pe:14, volatility:0.8 }
+    { id:0, name:"Nusa Tech", price:50, candleHistory:[{x:'H1',y:[50,50,50,50]}], sharesOwned:0, shortOwned:0, totalShares:1000000, dividendYield:0.025, sector:"Tech", pe:28, volatility:1.2, volume:0, watched:false },
+    { id:1, name:"Bumi Energi", price:120, candleHistory:[{x:'H1',y:[120,120,120,120]}], sharesOwned:0, shortOwned:0, totalShares:2000000, dividendYield:0.050, sector:"Energy", pe:12, volatility:1.0, volume:0, watched:false },
+    { id:2, name:"Pangan Jaya", price:30, candleHistory:[{x:'H1',y:[30,30,30,30]}], sharesOwned:0, shortOwned:0, totalShares:5000000, dividendYield:0.040, sector:"Consumer", pe:18, volatility:0.8, volume:0, watched:false },
+    { id:3, name:"Kripto Nusa", price:15, candleHistory:[{x:'H1',y:[15,15,15,15]}], sharesOwned:0, shortOwned:0, totalShares:10000000, dividendYield:0.000, sector:"Crypto", pe:0, volatility:2.5, volume:0, watched:false },
+    { id:4, name:"Graha Land", price:80, candleHistory:[{x:'H1',y:[80,80,80,80]}], sharesOwned:0, shortOwned:0, totalShares:1500000, dividendYield:0.065, sector:"Property", pe:15, volatility:0.9, volume:0, watched:false },
+    { id:5, name:"Tambang Maju", price:150, candleHistory:[{x:'H1',y:[150,150,150,150]}], sharesOwned:0, shortOwned:0, totalShares:900000, dividendYield:0.080, sector:"Mining", pe:9, volatility:1.4, volume:0, watched:false },
+    { id:6, name:"Indo Medika", price:45, candleHistory:[{x:'H1',y:[45,45,45,45]}], sharesOwned:0, shortOwned:0, totalShares:2500000, dividendYield:0.035, sector:"Health", pe:22, volatility:0.7, volume:0, watched:false },
+    { id:7, name:"Sinar Agro", price:60, candleHistory:[{x:'H1',y:[60,60,60,60]}], sharesOwned:0, shortOwned:0, totalShares:1800000, dividendYield:0.055, sector:"Agri", pe:11, volatility:1.1, volume:0, watched:false },
+    { id:8, name:"Logistik Jaya", price:25, candleHistory:[{x:'H1',y:[25,25,25,25]}], sharesOwned:0, shortOwned:0, totalShares:4000000, dividendYield:0.020, sector:"Logistics", pe:16, volatility:0.9, volume:0, watched:false },
+    { id:9, name:"Tele Nusa", price:95, candleHistory:[{x:'H1',y:[95,95,95,95]}], sharesOwned:0, shortOwned:0, totalShares:3500000, dividendYield:0.048, sector:"Telecom", pe:14, volatility:0.8, volume:0, watched:false }
 ];
+
+let transactionHistory = []; // {day, action, name, qty, price, total}
 
 let activeLoans = [];
 let loanIdCounter = 0;
@@ -543,6 +579,8 @@ function openTab(id) {
     if (id === 'tab-research') renderResearch();
     if (id === 'tab-achieve') renderAchievements();
     if (id === 'tab-orders') renderOrders();
+    if (id === 'tab-sector') renderSectorPerformance();
+    if (id === 'tab-history') renderHistory();
 }
 
 // ===================== CHARTS =====================
@@ -566,12 +604,27 @@ function initCharts() {
 
     const ctx = document.getElementById('assetPieChart').getContext('2d');
     assetPieChart = new Chart(ctx, {
-        type: 'pie',
+        type: 'doughnut',
         data: {
-            labels: ['Kas', 'Deposito', 'Long', 'Short'],
-            datasets: [{ data: [100,0,0,0], backgroundColor: ['#10b981','#a855f7','#3b82f6','#ef4444'], borderWidth: 1 }]
+            labels: ['Kas', 'Deposito'],
+            datasets: [{ data: [100, 0], backgroundColor: ['#10b981','#a855f7'], borderWidth: 1 }]
         },
-        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { labels: { color: '#9ca3af', font: { size: 11 } } } } }
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    callbacks: {
+                        label: function(ctx) {
+                            const total = ctx.dataset.data.reduce((a,b) => a+b, 0);
+                            const pct = total > 0 ? ((ctx.raw / total) * 100).toFixed(1) : 0;
+                            return `${ctx.label}: ${formatMoney(ctx.raw)} (${pct}%)`;
+                        }
+                    }
+                }
+            }
+        }
     });
 }
 
@@ -581,15 +634,74 @@ function changeChartEmiten() {
 }
 
 function updateCandleChartData() {
-    if (candleChart) candleChart.updateSeries([{ data: companies[selectedEmitenChartId].candleHistory }]);
+    const c = companies.find(x => x.id === selectedEmitenChartId) || companies[0];
+    if (candleChart && c) candleChart.updateSeries([{ data: c.candleHistory }]);
 }
 
 function updatePieChart() {
     if (!assetPieChart) return;
-    const longVal = companies.reduce((s,c) => s + c.price * c.sharesOwned, 0);
+
+    const labels = [];
+    const data = [];
+    const colors = [];
+    const colorPalette = ['#3b82f6','#ef4444','#f59e0b','#10b981','#a855f7','#ec4899','#06b6d4','#84cc16','#f97316','#8b5cf6','#14b8a6','#e11d48'];
+
+    // Kas
+    if (playerCash > 0.01) {
+        labels.push('Kas');
+        data.push(playerCash);
+        colors.push('#10b981');
+    }
+    // Deposito
+    if (totalDeposit > 0.01) {
+        labels.push('Deposito');
+        data.push(totalDeposit);
+        colors.push('#a855f7');
+    }
+
+    // Per emiten (long)
+    let colorIdx = 0;
+    companies.forEach(c => {
+        const val = c.price * c.sharesOwned;
+        if (val > 0.01) {
+            labels.push(c.name);
+            data.push(val);
+            colors.push(colorPalette[colorIdx % colorPalette.length]);
+            colorIdx++;
+        }
+    });
+
+    // Short exposure (negative visual)
     const shortVal = companies.reduce((s,c) => s + c.price * c.shortOwned, 0);
-    assetPieChart.data.datasets[0].data = [Math.max(0, playerCash), totalDeposit, longVal, shortVal];
+    if (shortVal > 0.01) {
+        labels.push('Short Exposure');
+        data.push(shortVal);
+        colors.push('#ef4444');
+    }
+
+    if (data.length === 0) {
+        labels.push('Kosong');
+        data.push(1);
+        colors.push('#374151');
+    }
+
+    assetPieChart.data.labels = labels;
+    assetPieChart.data.datasets[0].data = data;
+    assetPieChart.data.datasets[0].backgroundColor = colors;
     assetPieChart.update();
+
+    // Legend manual dengan %
+    const total = data.reduce((a,b) => a+b, 0) || 1;
+    const legendEl = document.getElementById('pie-legend');
+    if (legendEl) {
+        legendEl.innerHTML = labels.map((lab, i) => {
+            const pct = ((data[i] / total) * 100).toFixed(1);
+            return `<div style="display:flex;align-items:center;gap:6px;margin-bottom:3px;">
+                <span style="width:12px;height:12px;border-radius:3px;background:${colors[i]};display:inline-block;"></span>
+                <span>${lab}: <b>${formatMoney(data[i])}</b> <span class="small">(${pct}%)</span></span>
+            </div>`;
+        }).join('');
+    }
 }
 
 // ===================== CORE LOOP =====================
@@ -636,18 +748,32 @@ function nextDay() {
         document.getElementById('news-ticker').innerText = `🌍 MARKET SEASON: ${season.toUpperCase()} • ${seasonDaysLeft} hari tersisa`;
     }
 
-    // Price movement
-    const seasonMult = season === "Bull" ? 1.15 : 0.85;
+    // Price movement (lebih realistis)
+    const seasonMult = season === "Bull" ? 1.08 : 0.92;
     companies.forEach(c => {
         const open = c.price;
-        let changePercent = ((Math.random() * 6 - 3) / 100) * c.volatility * seasonMult;
-        // small mean reversion
-        if (c.price > 200) changePercent -= 0.005;
-        if (c.price < 10) changePercent += 0.008;
+
+        // Base daily move lebih kecil & natural (±1.8% dikali volatility)
+        let changePercent = ((Math.random() * 3.6 - 1.8) / 100) * c.volatility * seasonMult;
+
+        // Momentum ringan dari candle sebelumnya
+        if (c.candleHistory.length >= 2) {
+            const prevClose = c.candleHistory[c.candleHistory.length - 1].y[3];
+            const prevOpen = c.candleHistory[c.candleHistory.length - 1].y[0];
+            const prevChg = (prevClose - prevOpen) / prevOpen;
+            changePercent += prevChg * 0.18; // partial momentum
+        }
+
+        // Mean reversion ringan
+        if (c.price > 180) changePercent -= 0.004;
+        if (c.price < 8) changePercent += 0.006;
+
+        // Clamp biar gak ekstrem
+        changePercent = Math.max(-0.045, Math.min(0.045, changePercent));
 
         const close = Math.max(0.5, open * (1 + changePercent));
-        const high = Math.max(open, close) * (1 + Math.random() * 0.012);
-        const low = Math.min(open, close) * (1 - Math.random() * 0.012);
+        const high = Math.max(open, close) * (1 + Math.random() * 0.008);
+        const low = Math.min(open, close) * (1 - Math.random() * 0.008);
 
         c.price = close;
         c.candleHistory.push({
@@ -655,6 +781,11 @@ function nextDay() {
             y: [+open.toFixed(2), +high.toFixed(2), +low.toFixed(2), +close.toFixed(2)]
         });
         if (c.candleHistory.length > 30) c.candleHistory.shift();
+
+        // Daily Volume (lebih tinggi kalau pergerakan besar)
+        const baseVol = c.totalShares * 0.008;
+        const volMult = 1 + Math.abs(changePercent) * 25;
+        c.volume = Math.floor(baseVol * volMult * (0.6 + Math.random() * 0.8));
 
         // Dividend
         if (c.sharesOwned > 0 && Math.random() < 0.08) {
@@ -696,6 +827,11 @@ function nextDay() {
     // IPO setiap 60 hari
     if (currentDay > 0 && currentDay % 60 === 0 && ipoPool.length > 0) {
         launchIPO();
+    }
+
+    // Corporate Action (Stock Split / Buyback) - chance kecil tiap hari
+    if (Math.random() < 0.04) {
+        triggerCorporateAction();
     }
 
     // Check milestones & achievements
@@ -742,7 +878,9 @@ function launchIPO() {
         dividendYield: template.dividendYield,
         sector: template.sector,
         pe: template.pe,
-        volatility: template.volatility
+        volatility: template.volatility,
+        volume: Math.floor(totalShares * 0.02 * (0.5 + Math.random())),
+        watched: false
     };
 
     companies.push(newCompany);
@@ -811,7 +949,8 @@ function triggerRandomEvent() {
 
 // ===================== TRADING =====================
 function buyStockManual(id) {
-    const c = companies[id];
+    const c = companies.find(x => x.id === id);
+    if (!c) return;
     const inputEl = document.getElementById(`input-amt-${id}`);
     let qty = parseInt(inputEl.value);
     if (isNaN(qty) || qty <= 0) return alert("Masukkan jumlah lembar saham!");
@@ -836,6 +975,7 @@ function buyStockManual(id) {
     const impact = Math.log1p(qty / (c.totalShares * 0.15)) * 0.35;
     c.price *= (1 + impact);
 
+    addTransaction('BUY', c.name, qty, c.price, finalCost);
     logAction(`🛒 BUY ${qty} lembar ${c.name} @ ${formatMoney(c.price)} | Total ${formatMoney(finalCost)} + Fee ${formatMoney(finalFee)}`);
     unlockAchievement("first_buy");
     inputEl.value = '';
@@ -844,7 +984,8 @@ function buyStockManual(id) {
 }
 
 function sellStockManual(id) {
-    const c = companies[id];
+    const c = companies.find(x => x.id === id);
+    if (!c) return;
     const inputEl = document.getElementById(`input-amt-${id}`);
     let qty = parseInt(inputEl.value);
     if (isNaN(qty) || qty <= 0) return alert("Masukkan jumlah lembar saham!");
@@ -867,6 +1008,7 @@ function sellStockManual(id) {
     const impact = Math.log1p(qty / (c.totalShares * 0.15)) * 0.35;
     c.price = Math.max(0.5, c.price * (1 - impact));
 
+    addTransaction('SELL', c.name, qty, c.price, revenue - fee);
     logAction(`💰 SELL ${qty} lembar ${c.name} | Dapat ${formatMoney(revenue - fee)} (fee ${formatMoney(fee)})`);
     inputEl.value = '';
     updateCandleChartData();
@@ -874,7 +1016,8 @@ function sellStockManual(id) {
 }
 
 function shortStock(id) {
-    const c = companies[id];
+    const c = companies.find(x => x.id === id);
+    if (!c) return;
     const inputEl = document.getElementById(`input-amt-${id}`);
     let qty = parseInt(inputEl.value);
     if (isNaN(qty) || qty <= 0) return alert("Masukkan jumlah lembar untuk short!");
@@ -898,6 +1041,7 @@ function shortStock(id) {
     const impact = Math.log1p(qty / (c.totalShares * 0.15)) * 0.3;
     c.price = Math.max(0.5, c.price * (1 - impact));
 
+    addTransaction('SHORT', c.name, qty, c.price, notional);
     logAction(`🔻 SHORT ${qty} lembar ${c.name} | Collateral ${formatMoney(collateral)}`);
     unlockAchievement("short_king");
     inputEl.value = '';
@@ -905,17 +1049,19 @@ function shortStock(id) {
 }
 
 function coverShort(id) {
-    const c = companies[id];
-    if (c.shortOwned <= 0) return;
-    const cost = c.shortOwned * c.price;
+    const c = companies.find(x => x.id === id);
+    if (!c || c.shortOwned <= 0) return;
+    const qty = c.shortOwned;
+    const cost = qty * c.price;
     if (playerCash < cost) {
         logAction(`⚠️ Kas tidak cukup untuk cover short`);
         return;
     }
     playerCash -= cost;
     // return collateral roughly (simplified)
-    playerCash += (c.shortOwned * c.price * 0.5); // rough
-    logAction(`🔼 COVER SHORT ${c.shortOwned} ${c.name}`);
+    playerCash += (qty * c.price * 0.5); // rough
+    addTransaction('COVER', c.name, qty, c.price, cost);
+    logAction(`🔼 COVER SHORT ${qty} ${c.name}`);
     c.shortOwned = 0;
     updateUI();
 }
@@ -944,7 +1090,8 @@ function createOrder() {
 function processOrders() {
     pendingOrders.forEach(o => {
         if (!o.active) return;
-        const c = companies[o.companyId];
+        const c = companies.find(x => x.id === o.companyId);
+        if (!c) return;
         let triggered = false;
 
         if (o.type === 'sl' && c.price <= o.triggerPrice) triggered = true;
@@ -987,7 +1134,8 @@ function renderOrders() {
         return;
     }
     el.innerHTML = pendingOrders.map(o => {
-        const c = companies[o.companyId];
+        const c = companies.find(x => x.id === o.companyId);
+        if (!c) return;
         return `<div style="padding:6px;background:#070a12;border-radius:6px;margin-bottom:4px;font-size:12px;">
             #${o.id} ${o.type.toUpperCase()} ${c.name} @ ${formatMoney(o.triggerPrice)} 
             <button class="btn btn-red" style="padding:2px 6px;font-size:10px;margin-left:8px;" onclick="cancelOrder(${o.id})">X</button>
@@ -1066,10 +1214,26 @@ function withdrawAllDeposit() {
 // ===================== RESEARCH =====================
 function renderResearch() {
     const id = parseInt(document.getElementById('research-company').value);
-    const c = companies[id];
+    const c = companies.find(x => x.id === id);
+    if (!c) return;
     const sma7 = c.candleHistory.slice(-7).reduce((s,d) => s + d.y[3], 0) / Math.min(7, c.candleHistory.length);
     const sma25 = c.candleHistory.slice(-25).reduce((s,d) => s + d.y[3], 0) / Math.min(25, c.candleHistory.length);
-    const rsiApprox = 50 + (c.price - sma7) / sma7 * 100; // very rough
+    const rsiApprox = 50 + (c.price - sma7) / sma7 * 100;
+
+    // Simple fake Order Book
+    const mid = c.price;
+    let orderBookHtml = '';
+    for (let i = 3; i >= 1; i--) {
+        const askP = +(mid * (1 + 0.002 * i)).toFixed(2);
+        const askVol = Math.floor((c.volume || 1000) * (0.05 + Math.random() * 0.1) / i);
+        orderBookHtml += `<div style="display:flex;justify-content:space-between;color:#ef4444;font-size:12px;"><span>${askVol.toLocaleString()}</span><span>${formatMoney(askP)}</span></div>`;
+    }
+    orderBookHtml += `<div style="text-align:center;font-weight:700;padding:4px 0;border-top:1px solid var(--border);border-bottom:1px solid var(--border);margin:4px 0;">${formatMoney(mid)}</div>`;
+    for (let i = 1; i <= 3; i++) {
+        const bidP = +(mid * (1 - 0.002 * i)).toFixed(2);
+        const bidVol = Math.floor((c.volume || 1000) * (0.05 + Math.random() * 0.1) / i);
+        orderBookHtml += `<div style="display:flex;justify-content:space-between;color:#10b981;font-size:12px;"><span>${bidVol.toLocaleString()}</span><span>${formatMoney(bidP)}</span></div>`;
+    }
 
     document.getElementById('research-content').innerHTML = `
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;font-size:13px;">
@@ -1079,11 +1243,126 @@ function renderResearch() {
             <div><b>Volatility</b><br>${c.volatility.toFixed(1)}x</div>
             <div><b>SMA 7</b><br>${formatMoney(sma7)}</div>
             <div><b>SMA 25</b><br>${formatMoney(sma25)}</div>
+            <div><b>Total Shares</b><br>${c.totalShares.toLocaleString()}</div>
             <div><b>Market Cap</b><br>${formatMoney(c.price * c.totalShares)}</div>
+            <div><b>Volume Hari Ini</b><br>${(c.volume || 0).toLocaleString()}</div>
             <div><b>RSI (approx)</b><br>${Math.min(90, Math.max(10, rsiApprox)).toFixed(0)}</div>
+            <div><b>Shares Owned</b><br>${c.sharesOwned}</div>
+            <div><b>Watchlist</b><br>${c.watched ? '★ Ya' : '☆ Tidak'}</div>
+        </div>
+        <div style="margin-top:16px;">
+            <h3 style="font-size:14px;margin-bottom:6px;">📖 Order Book (Simulasi)</h3>
+            <div style="background:#070a12;padding:10px;border-radius:6px;border:1px solid var(--border);max-width:220px;">
+                <div style="display:flex;justify-content:space-between;font-size:11px;color:#9ca3af;margin-bottom:4px;"><span>Volume</span><span>Price</span></div>
+                ${orderBookHtml}
+            </div>
         </div>
         <p class="small" style="margin-top:10px;">Harga di atas SMA7 = bias bullish jangka pendek.</p>
     `;
+}
+
+// ===================== WATCHLIST / HISTORY / SECTOR / CORP ACTION =====================
+function toggleWatch(id) {
+    const c = companies.find(x => x.id === id);
+    if (!c) return;
+    c.watched = !c.watched;
+    updateUI();
+}
+
+function addTransaction(action, name, qty, price, total) {
+    transactionHistory.unshift({
+        day: currentDay,
+        action,
+        name,
+        qty,
+        price,
+        total
+    });
+    if (transactionHistory.length > 200) transactionHistory.pop();
+}
+
+function renderHistory() {
+    const body = document.getElementById('history-body');
+    if (!body) return;
+    if (transactionHistory.length === 0) {
+        body.innerHTML = `<tr><td colspan="6" class="small">Belum ada transaksi.</td></tr>`;
+        return;
+    }
+    body.innerHTML = transactionHistory.map(t => {
+        const color = t.action.includes('BUY') || t.action.includes('COVER') ? 'up' : (t.action.includes('SELL') || t.action.includes('SHORT') ? 'down' : '');
+        return `<tr>
+            <td>${t.day}</td>
+            <td class="${color}"><b>${t.action}</b></td>
+            <td>${t.name}</td>
+            <td>${t.qty}</td>
+            <td>${formatMoney(t.price)}</td>
+            <td>${formatMoney(t.total)}</td>
+        </tr>`;
+    }).join('');
+}
+
+function renderSectorPerformance() {
+    const el = document.getElementById('sector-performance');
+    if (!el) return;
+
+    const sectors = {};
+    companies.forEach(c => {
+        if (!sectors[c.sector]) sectors[c.sector] = { totalChg: 0, count: 0, names: [] };
+        const prev = c.candleHistory[c.candleHistory.length - 2] || c.candleHistory[0];
+        const chg = ((c.price - prev.y[0]) / prev.y[0]) * 100;
+        sectors[c.sector].totalChg += chg;
+        sectors[c.sector].count++;
+        sectors[c.sector].names.push(c.name);
+    });
+
+    const sorted = Object.entries(sectors).map(([name, data]) => ({
+        name,
+        avg: data.totalChg / data.count,
+        count: data.count
+    })).sort((a,b) => b.avg - a.avg);
+
+    el.innerHTML = sorted.map(s => {
+        const cls = s.avg >= 0 ? 'up' : 'down';
+        const arrow = s.avg >= 0 ? '▲' : '▼';
+        return `<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);">
+            <div>
+                <b>${s.name}</b>
+                <div class="small">${s.count} emiten</div>
+            </div>
+            <div class="${cls}" style="font-weight:700;font-size:15px;">${arrow} ${s.avg.toFixed(2)}%</div>
+        </div>`;
+    }).join('');
+}
+
+function triggerCorporateAction() {
+    if (companies.length === 0) return;
+    const c = companies[Math.floor(Math.random() * companies.length)];
+    const type = Math.random() < 0.5 ? 'split' : 'buyback';
+
+    if (type === 'split') {
+        // Stock Split 2:1
+        const ratio = Math.random() < 0.7 ? 2 : 5;
+        c.price = +(c.price / ratio).toFixed(2);
+        c.totalShares = Math.floor(c.totalShares * ratio);
+        c.sharesOwned = Math.floor(c.sharesOwned * ratio);
+        c.shortOwned = Math.floor(c.shortOwned * ratio);
+        // Adjust last candle
+        if (c.candleHistory.length > 0) {
+            const last = c.candleHistory[c.candleHistory.length - 1];
+            last.y = last.y.map(v => +(v / ratio).toFixed(2));
+        }
+        logAction(`🔀 <b>STOCK SPLIT ${ratio}:1</b> • ${c.name} • Harga disesuaikan, jumlah lembar ×${ratio}`);
+        document.getElementById('news-ticker').innerText = `🔀 STOCK SPLIT: ${c.name} melakukan split ${ratio}:1 • Hari ${currentDay}`;
+    } else {
+        // Buyback 2-5%
+        const pct = 0.02 + Math.random() * 0.03;
+        const bought = Math.floor(c.totalShares * pct);
+        c.totalShares = Math.max(1000, c.totalShares - bought);
+        c.price = +(c.price * (1 + pct * 0.8)).toFixed(2);
+        logAction(`🛒 <b>BUYBACK</b> • ${c.name} membeli kembali ${bought.toLocaleString()} saham (+${(pct*100).toFixed(1)}% harga)`);
+        document.getElementById('news-ticker').innerText = `🛒 BUYBACK: ${c.name} melakukan buyback • Harga naik • Hari ${currentDay}`;
+    }
+    updateUI();
 }
 
 // ===================== ACHIEVEMENTS & MILESTONES =====================
@@ -1150,11 +1429,18 @@ function updateUI() {
     document.getElementById('total-deposit').innerText = formatMoney(totalDeposit);
     document.getElementById('game-day').innerText = currentDay;
     document.getElementById('max-loan-allowed').innerText = formatMoney(Math.max(0, nw * 0.30));
-    document.getElementById('stat-porto-val').innerText = formatMoney(getStockValue());
+    const longVal = companies.reduce((s,c) => s + c.price * c.sharesOwned, 0);
+    const shortVal = companies.reduce((s,c) => s + c.price * c.shortOwned, 0);
+    document.getElementById('stat-porto-val').innerText = formatMoney(longVal);
+    const shortEl = document.getElementById('stat-short-val');
+    if (shortEl) shortEl.innerText = formatMoney(shortVal);
     document.getElementById('stat-leverage').innerText = (nw > 0 ? (getTotalLoan() / nw * 100) : 0).toFixed(1) + "%";
     document.getElementById('current-season').innerText = season;
     document.getElementById('broker-fee-display').innerText = ((brokerFee - permanentFeeReduction) * 100).toFixed(2) + "%";
     document.getElementById('prestige-lv').innerText = prestigeLevel;
+
+    // Update pie if visible
+    if (document.getElementById('tab-stats').classList.contains('active')) updatePieChart();
 
     // Goal progress
     const progress = Math.min(100, (nw / 1e17) * 100);
@@ -1177,11 +1463,15 @@ function updateUI() {
         const prev = c.candleHistory[c.candleHistory.length - 2] || c.candleHistory[0];
         const chg = ((c.price - prev.y[0]) / prev.y[0]) * 100;
         const saved = activeInputs[c.id] || '';
+        const volStr = c.volume >= 1000 ? (c.volume/1000).toFixed(1) + 'K' : c.volume;
         return `<tr>
+            <td style="cursor:pointer;font-size:16px;" onclick="toggleWatch(${c.id})">${c.watched ? '★' : '☆'}</td>
             <td><b>${c.name}</b><br><span class="small">${c.sector}</span></td>
             <td>${formatMoney(c.price)}</td>
             <td class="${chg>=0?'up':'down'}">${chg>=0?'▲':'▼'}${chg.toFixed(1)}%</td>
+            <td class="small">${volStr}</td>
             <td>${(c.dividendYield*100).toFixed(1)}%</td>
+            <td class="small">${c.totalShares.toLocaleString()}</td>
             <td><b>${c.sharesOwned}</b></td>
             <td class="down">${c.shortOwned || 0}</td>
             <td>
@@ -1218,7 +1508,7 @@ function saveGame() {
         playerCash, totalDeposit, currentDay, activeLoans, loanIdCounter,
         companies, pendingOrders, orderIdCounter, prestigeLevel,
         permanentDepositBonus, permanentFeeReduction, season, seasonDaysLeft,
-        achievements, brokerFee, usedCodes, ipoPool, nextCompanyId
+        achievements, brokerFee, usedCodes, ipoPool, nextCompanyId, transactionHistory
     };
     localStorage.setItem('dailyTraderEliteV2', JSON.stringify(state));
     alert("Game tersimpan!");
@@ -1234,6 +1524,11 @@ function loadGame() {
     activeLoans = data.activeLoans || [];
     loanIdCounter = data.loanIdCounter || 0;
     companies = data.companies;
+    // Ensure new fields exist on old saves
+    companies.forEach(c => {
+        if (c.volume === undefined) c.volume = 0;
+        if (c.watched === undefined) c.watched = false;
+    });
     pendingOrders = data.pendingOrders || [];
     orderIdCounter = data.orderIdCounter || 0;
     prestigeLevel = data.prestigeLevel || 0;
@@ -1246,6 +1541,7 @@ function loadGame() {
     usedCodes = data.usedCodes || {};
     ipoPool = data.ipoPool || ipoPool;
     nextCompanyId = data.nextCompanyId || 10;
+    transactionHistory = data.transactionHistory || [];
 
     // Refresh selectors after load
     const options = companies.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
@@ -1272,7 +1568,7 @@ function resetGame() {
 initCharts();
 updateUI();
 startGameTimer();
-logAction("Sistem Elite Pro v2 aktif. Goal: 100 Quadrillion. Gunakan event, leverage & compounding!");
+logAction("Sistem Invesim v2-1 aktif. Goal: 100 Quadrillion. Gunakan event, leverage & compounding!");
 renderAchievements();
 </script>
 </body>
