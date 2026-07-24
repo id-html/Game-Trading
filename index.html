@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Invesim v2-1 — Goal 100 Quadrillion</title>
+    <title>Invesim — Goal 100 Quadrillion</title>
     <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
@@ -214,7 +214,7 @@
 <!-- Header -->
 <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:8px;">
     <div>
-        <h1 style="font-size:16px;">📈 Invesim v2-1</h1>
+        <h1 style="font-size:16px;">📈 Invesim</h1>
         <div class="small">Goal: <b style="color:var(--gold)">100 Quadrillion</b> • Prestige Lv <span id="prestige-lv">0</span></div>
     </div>
     <div style="display:flex;gap:4px;flex-wrap:wrap;align-items:center;">
@@ -269,7 +269,7 @@
 
 <!-- Ticker -->
 <div class="ticker-wrapper">
-    <div id="news-ticker" class="ticker-text">🚨 Selamat datang di Invesim v2-1 • Goal: 100 Quadrillion • Gunakan leverage & event untuk tumbuh eksponensial</div>
+    <div id="news-ticker" class="ticker-text">🚨 Selamat datang di Invesim • Goal: 100 Quadrillion • Gunakan leverage & event untuk tumbuh eksponensial</div>
 </div>
 
 <!-- Tabs -->
@@ -440,16 +440,16 @@
 <script>
 // ===================== DATA & STATE =====================
 let companies = [
-    { id:0, name:"Nusa Tech", price:50, candleHistory:[{x:'H1',y:[50,50,50,50]}], sharesOwned:0, shortOwned:0, totalShares:1000000, dividendYield:0.025, sector:"Tech", pe:28, volatility:1.2, volume:0, watched:false },
-    { id:1, name:"Bumi Energi", price:120, candleHistory:[{x:'H1',y:[120,120,120,120]}], sharesOwned:0, shortOwned:0, totalShares:2000000, dividendYield:0.050, sector:"Energy", pe:12, volatility:1.0, volume:0, watched:false },
-    { id:2, name:"Pangan Jaya", price:30, candleHistory:[{x:'H1',y:[30,30,30,30]}], sharesOwned:0, shortOwned:0, totalShares:5000000, dividendYield:0.040, sector:"Consumer", pe:18, volatility:0.8, volume:0, watched:false },
-    { id:3, name:"Kripto Nusa", price:15, candleHistory:[{x:'H1',y:[15,15,15,15]}], sharesOwned:0, shortOwned:0, totalShares:10000000, dividendYield:0.000, sector:"Crypto", pe:0, volatility:2.5, volume:0, watched:false },
-    { id:4, name:"Graha Land", price:80, candleHistory:[{x:'H1',y:[80,80,80,80]}], sharesOwned:0, shortOwned:0, totalShares:1500000, dividendYield:0.065, sector:"Property", pe:15, volatility:0.9, volume:0, watched:false },
-    { id:5, name:"Tambang Maju", price:150, candleHistory:[{x:'H1',y:[150,150,150,150]}], sharesOwned:0, shortOwned:0, totalShares:900000, dividendYield:0.080, sector:"Mining", pe:9, volatility:1.4, volume:0, watched:false },
-    { id:6, name:"Indo Medika", price:45, candleHistory:[{x:'H1',y:[45,45,45,45]}], sharesOwned:0, shortOwned:0, totalShares:2500000, dividendYield:0.035, sector:"Health", pe:22, volatility:0.7, volume:0, watched:false },
-    { id:7, name:"Sinar Agro", price:60, candleHistory:[{x:'H1',y:[60,60,60,60]}], sharesOwned:0, shortOwned:0, totalShares:1800000, dividendYield:0.055, sector:"Agri", pe:11, volatility:1.1, volume:0, watched:false },
-    { id:8, name:"Logistik Jaya", price:25, candleHistory:[{x:'H1',y:[25,25,25,25]}], sharesOwned:0, shortOwned:0, totalShares:4000000, dividendYield:0.020, sector:"Logistics", pe:16, volatility:0.9, volume:0, watched:false },
-    { id:9, name:"Tele Nusa", price:95, candleHistory:[{x:'H1',y:[95,95,95,95]}], sharesOwned:0, shortOwned:0, totalShares:3500000, dividendYield:0.048, sector:"Telecom", pe:14, volatility:0.8, volume:0, watched:false }
+    { id:0, name:"Nusa Tech", price:50, candleHistory:[{x:'H1',y:[50,50,50,50]}], sharesOwned:0, shortOwned:0, totalShares:10000, dividendYield:0.025, sector:"Tech", pe:28, volatility:1.2, volume:0, watched:false },
+    { id:1, name:"Bumi Energi", price:120, candleHistory:[{x:'H1',y:[120,120,120,120]}], sharesOwned:0, shortOwned:0, totalShares:20000, dividendYield:0.050, sector:"Energy", pe:12, volatility:1.0, volume:0, watched:false },
+    { id:2, name:"Pangan Jaya", price:30, candleHistory:[{x:'H1',y:[30,30,30,30]}], sharesOwned:0, shortOwned:0, totalShares:50000, dividendYield:0.040, sector:"Consumer", pe:18, volatility:0.8, volume:0, watched:false },
+    { id:3, name:"Kripto Nusa", price:15, candleHistory:[{x:'H1',y:[15,15,15,15]}], sharesOwned:0, shortOwned:0, totalShares:100000, dividendYield:0.000, sector:"Crypto", pe:0, volatility:2.5, volume:0, watched:false },
+    { id:4, name:"Graha Land", price:80, candleHistory:[{x:'H1',y:[80,80,80,80]}], sharesOwned:0, shortOwned:0, totalShares:15000, dividendYield:0.065, sector:"Property", pe:15, volatility:0.9, volume:0, watched:false },
+    { id:5, name:"Tambang Maju", price:150, candleHistory:[{x:'H1',y:[150,150,150,150]}], sharesOwned:0, shortOwned:0, totalShares:9000, dividendYield:0.080, sector:"Mining", pe:9, volatility:1.4, volume:0, watched:false },
+    { id:6, name:"Indo Medika", price:45, candleHistory:[{x:'H1',y:[45,45,45,45]}], sharesOwned:0, shortOwned:0, totalShares:25000, dividendYield:0.035, sector:"Health", pe:22, volatility:0.7, volume:0, watched:false },
+    { id:7, name:"Sinar Agro", price:60, candleHistory:[{x:'H1',y:[60,60,60,60]}], sharesOwned:0, shortOwned:0, totalShares:18000, dividendYield:0.055, sector:"Agri", pe:11, volatility:1.1, volume:0, watched:false },
+    { id:8, name:"Logistik Jaya", price:25, candleHistory:[{x:'H1',y:[25,25,25,25]}], sharesOwned:0, shortOwned:0, totalShares:40000, dividendYield:0.020, sector:"Logistics", pe:16, volatility:0.9, volume:0, watched:false },
+    { id:9, name:"Tele Nusa", price:95, candleHistory:[{x:'H1',y:[95,95,95,95]}], sharesOwned:0, shortOwned:0, totalShares:35000, dividendYield:0.048, sector:"Telecom", pe:14, volatility:0.8, volume:0, watched:false }
 ];
 
 let transactionHistory = []; // {day, action, name, qty, price, total}
@@ -955,6 +955,13 @@ function buyStockManual(id) {
     let qty = parseInt(inputEl.value);
     if (isNaN(qty) || qty <= 0) return alert("Masukkan jumlah lembar saham!");
     
+    // Cek batas total shares (tidak boleh beli lebih dari sisa saham)
+    if (c.sharesOwned + qty > c.totalShares) {
+        const maxBuy = Math.max(0, c.totalShares - c.sharesOwned);
+        logAction(`⚠️ Gagal beli. Sisa saham tersedia hanya ${maxBuy.toLocaleString()} lembar (Total Shares: ${c.totalShares.toLocaleString()})`);
+        return;
+    }
+
     const finalCost = qty * c.price;
     const finalFee = finalCost * Math.max(0.0005, brokerFee - permanentFeeReduction);
     const totalNeeded = finalCost + finalFee;
@@ -971,9 +978,22 @@ function buyStockManual(id) {
     playerCash -= totalNeeded;
     c.sharesOwned += qty;
 
-    // Price impact
-    const impact = Math.log1p(qty / (c.totalShares * 0.15)) * 0.35;
-    c.price *= (1 + impact);
+    // Price impact + update candle biar jadi batang hijau panjang
+    const oldPrice = c.price;
+    const impact = Math.log1p(qty / (c.totalShares * 0.15)) * 0.45;
+    c.price = +(oldPrice * (1 + impact)).toFixed(2);
+
+    // Update candle terakhir
+    if (c.candleHistory.length > 0) {
+        const last = c.candleHistory[c.candleHistory.length - 1];
+        // last = [open, high, low, close]
+        last.y[3] = c.price;                    // close
+        last.y[1] = Math.max(last.y[1], c.price); // high
+        // biar kelihatan "panjang", kalau impact gede, turunin low dikit biar body lebih jelas
+        if (impact > 0.01) {
+            last.y[2] = Math.min(last.y[2], oldPrice * 0.998);
+        }
+    }
 
     addTransaction('BUY', c.name, qty, c.price, finalCost);
     logAction(`🛒 BUY ${qty} lembar ${c.name} @ ${formatMoney(c.price)} | Total ${formatMoney(finalCost)} + Fee ${formatMoney(finalFee)}`);
@@ -1005,8 +1025,20 @@ function sellStockManual(id) {
     playerCash += (revenue - fee);
     c.sharesOwned -= qty;
 
-    const impact = Math.log1p(qty / (c.totalShares * 0.15)) * 0.35;
-    c.price = Math.max(0.5, c.price * (1 - impact));
+    // Price impact + update candle biar jadi batang merah panjang
+    const oldPrice = c.price;
+    const impact = Math.log1p(qty / (c.totalShares * 0.15)) * 0.45;
+    c.price = Math.max(0.5, +(oldPrice * (1 - impact)).toFixed(2));
+
+    // Update candle terakhir
+    if (c.candleHistory.length > 0) {
+        const last = c.candleHistory[c.candleHistory.length - 1];
+        last.y[3] = c.price;                    // close
+        last.y[2] = Math.min(last.y[2], c.price); // low
+        if (impact > 0.01) {
+            last.y[1] = Math.max(last.y[1], oldPrice * 1.002); // high sedikit lebih tinggi biar body jelas
+        }
+    }
 
     addTransaction('SELL', c.name, qty, c.price, revenue - fee);
     logAction(`💰 SELL ${qty} lembar ${c.name} | Dapat ${formatMoney(revenue - fee)} (fee ${formatMoney(fee)})`);
@@ -1021,6 +1053,13 @@ function shortStock(id) {
     const inputEl = document.getElementById(`input-amt-${id}`);
     let qty = parseInt(inputEl.value);
     if (isNaN(qty) || qty <= 0) return alert("Masukkan jumlah lembar untuk short!");
+
+    // Batas short tidak boleh melebihi total shares
+    if (c.shortOwned + qty > c.totalShares) {
+        const maxShort = Math.max(0, c.totalShares - c.shortOwned);
+        logAction(`⚠️ Gagal short. Sisa kuota short hanya ${maxShort.toLocaleString()} lembar`);
+        return;
+    }
 
     const notional = qty * c.price;
     if (notional < 10) {
@@ -1038,13 +1077,23 @@ function shortStock(id) {
     playerCash -= collateral; // lock collateral (simplified)
     c.shortOwned += qty;
 
-    const impact = Math.log1p(qty / (c.totalShares * 0.15)) * 0.3;
-    c.price = Math.max(0.5, c.price * (1 - impact));
+    // Price impact + candle merah
+    const oldPrice = c.price;
+    const impact = Math.log1p(qty / (c.totalShares * 0.15)) * 0.4;
+    c.price = Math.max(0.5, +(oldPrice * (1 - impact)).toFixed(2));
+
+    if (c.candleHistory.length > 0) {
+        const last = c.candleHistory[c.candleHistory.length - 1];
+        last.y[3] = c.price;
+        last.y[2] = Math.min(last.y[2], c.price);
+        if (impact > 0.01) last.y[1] = Math.max(last.y[1], oldPrice * 1.002);
+    }
 
     addTransaction('SHORT', c.name, qty, c.price, notional);
     logAction(`🔻 SHORT ${qty} lembar ${c.name} | Collateral ${formatMoney(collateral)}`);
     unlockAchievement("short_king");
     inputEl.value = '';
+    updateCandleChartData();
     updateUI();
 }
 
@@ -1400,7 +1449,7 @@ function doPrestige() {
     brokerFee = Math.max(0.0005, 0.003 - permanentFeeReduction);
 
     // Reset progress but keep prestige
-    playerCash = 100 + (prestigeLevel * 50);
+    playerCash = 10000 + (prestigeLevel * 5000);
     totalDeposit = 0;
     activeLoans = [];
     pendingOrders = [];
@@ -1510,12 +1559,12 @@ function saveGame() {
         permanentDepositBonus, permanentFeeReduction, season, seasonDaysLeft,
         achievements, brokerFee, usedCodes, ipoPool, nextCompanyId, transactionHistory
     };
-    localStorage.setItem('dailyTraderEliteV2', JSON.stringify(state));
+    localStorage.setItem('invesimSave', JSON.stringify(state));
     alert("Game tersimpan!");
 }
 
 function loadGame() {
-    const raw = localStorage.getItem('dailyTraderEliteV2');
+    const raw = localStorage.getItem('invesimSave');
     if (!raw) return alert("Tidak ada save data");
     const data = JSON.parse(raw);
     playerCash = data.playerCash;
@@ -1560,7 +1609,7 @@ function triggerGameOver() {
 }
 
 function resetGame() {
-    localStorage.removeItem('dailyTraderEliteV2');
+    localStorage.removeItem('invesimSave');
     location.reload();
 }
 
@@ -1568,7 +1617,7 @@ function resetGame() {
 initCharts();
 updateUI();
 startGameTimer();
-logAction("Sistem Invesim v2-1 aktif. Goal: 100 Quadrillion. Gunakan event, leverage & compounding!");
+logAction("Sistem Invesim aktif. Goal: 100 Quadrillion. Gunakan event, leverage & compounding!");
 renderAchievements();
 </script>
 </body>
